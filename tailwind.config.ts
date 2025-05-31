@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -19,6 +18,9 @@ export default {
 			}
 		},
 		extend: {
+			backgroundImage: {
+				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -109,6 +111,27 @@ export default {
 					'100%': {
 						transform: 'translate(0px, 0px) scale(1)',
 					},
+				},
+				'pulse-slow': {
+					'0%, 100%': {
+						opacity: '1',
+						transform: 'scale(1)',
+					},
+					'50%': {
+						opacity: '0.85',
+						transform: 'scale(1.05)',
+					},
+				},
+				'float': {
+					'0%': {
+						transform: 'translateY(0px)',
+					},
+					'50%': {
+						transform: 'translateY(-20px)',
+					},
+					'100%': {
+						transform: 'translateY(0px)',
+					},
 				}
 			},
 			animation: {
@@ -116,9 +139,13 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.3s ease-out',
 				'blob': 'blob 7s infinite',
+				'pulse-slow': 'pulse-slow 8s ease-in-out infinite',
+				'float': 'float 12s ease-in-out infinite',
 			},
 			animationDelay: {
+				'1000': '1s',
 				'2000': '2s',
+				'3000': '3s',
 				'4000': '4s',
 			}
 		}
