@@ -24,28 +24,45 @@ const MovingGradientBackground = ({ children, variant = 'dark' }: MovingGradient
       <div className={`absolute inset-0 ${getGradientClasses()}`}>
         {variant === 'dark' && (
           <div className="absolute inset-0">
-            {/* Dark blue base */}
-            <div className="absolute inset-0 bg-blue-950" />
+            {/* Dark background base */}
+            <div className="absolute inset-0 bg-black" />
             
-            {/* Main teal glow - larger, off-center, positioned bottom-right */}
-            <div className="absolute top-[60%] left-[55%] w-[100vh] h-[100vh] bg-teal-400/30 rounded-full filter blur-[100px] mix-blend-screen animate-pulse-slow" />
+            {/* Deep blue glow - #000BE2 with reduced opacity */}
+            <div 
+              className="absolute top-[45%] left-[60%] w-[120vh] h-[120vh] rounded-full filter blur-[120px] mix-blend-screen animate-pulse-slow" 
+              style={{ backgroundColor: 'rgba(0, 11, 226, 0.35)' }} // #000BE2 with 35% opacity (reduced from 70%)
+            />
             
-            {/* Secondary cyan glow - smaller, different position */}
-            <div className="absolute top-[30%] left-[40%] w-[70vh] h-[70vh] bg-cyan-400/25 rounded-full filter blur-[80px] mix-blend-screen animate-float" />
+            {/* Bright teal/mint glow - #43FFC0 with reduced opacity */}
+            <div 
+              className="absolute top-[30%] left-[30%] w-[90vh] h-[90vh] rounded-full filter blur-[100px] mix-blend-screen animate-float" 
+              style={{ backgroundColor: 'rgba(67, 255, 192, 0.3)' }} // #43FFC0 with 30% opacity (reduced from 70%)
+            />
             
-            {/* Smaller accent glows */}
-            <div className="absolute top-[80%] left-[20%] w-[40vh] h-[40vh] bg-blue-400/20 rounded-full filter blur-[60px] mix-blend-screen animate-pulse-slow animation-delay-2000" />
-            <div className="absolute top-[10%] left-[70%] w-[30vh] h-[30vh] bg-cyan-300/20 rounded-full filter blur-[40px] mix-blend-screen animate-float animation-delay-3000" />
+            {/* Light purple/lavender glow - #B0A9FF with reduced opacity */}
+            <div 
+              className="absolute top-[70%] left-[20%] w-[70vh] h-[70vh] rounded-full filter blur-[80px] mix-blend-screen animate-pulse-slow animation-delay-2000" 
+              style={{ backgroundColor: 'rgba(176, 169, 255, 0.25)' }} // #B0A9FF with 25% opacity (reduced from 50%)
+            />
             
-            {/* Additional vibrant accents */}
-            <div className="absolute top-[50%] left-[10%] w-[25vh] h-[25vh] bg-indigo-500/15 rounded-full filter blur-[50px] mix-blend-screen animate-float animation-delay-4000" />
-            <div className="absolute top-[20%] left-[85%] w-[20vh] h-[20vh] bg-blue-500/15 rounded-full filter blur-[30px] mix-blend-screen animate-pulse-slow animation-delay-1000" />
+            {/* Additional accent glows with the same colors but at reduced opacity */}
+            <div 
+              className="absolute top-[15%] left-[75%] w-[50vh] h-[50vh] rounded-full filter blur-[70px] mix-blend-screen animate-float animation-delay-3000" 
+              style={{ backgroundColor: 'rgba(176, 169, 255, 0.15)' }} // #B0A9FF with 15% opacity (reduced from 30%)
+            />
             
-            {/* Overlay for better color blending */}
-            <div className="absolute inset-0 bg-gradient-to-t from-blue-950/50 to-transparent mix-blend-overlay" />
+            <div 
+              className="absolute top-[80%] left-[50%] w-[40vh] h-[40vh] rounded-full filter blur-[60px] mix-blend-screen animate-float animation-delay-4000" 
+              style={{ backgroundColor: 'rgba(67, 255, 192, 0.2)' }} // #43FFC0 with 20% opacity (reduced from 40%)
+            />
             
-            {/* Darker edge vignette - lighter to show more color */}
-            <div className="absolute inset-0 bg-gradient-radial from-transparent to-black/50" />
+            <div 
+              className="absolute top-[40%] left-[10%] w-[30vh] h-[30vh] rounded-full filter blur-[50px] mix-blend-screen animate-pulse-slow animation-delay-1000" 
+              style={{ backgroundColor: 'rgba(0, 11, 226, 0.25)' }} // #000BE2 with 25% opacity (reduced from 50%)
+            />
+            
+            {/* Lighter edge vignette */}
+            <div className="absolute inset-0 bg-gradient-radial from-transparent to-black/40" />
           </div>
         )}
         <div className="absolute inset-0 opacity-30">
