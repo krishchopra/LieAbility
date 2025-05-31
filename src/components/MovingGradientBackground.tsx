@@ -27,41 +27,42 @@ const MovingGradientBackground = ({ children, variant = 'dark' }: MovingGradient
             {/* Dark background base */}
             <div className="absolute inset-0 bg-black" />
             
-            {/* Deep blue glow - #000BE2 with reduced opacity */}
+            {/* Main gradients */}
             <div 
               className="absolute top-[45%] left-[60%] w-[120vh] h-[120vh] rounded-full filter blur-[120px] mix-blend-screen animate-pulse-slow" 
-              style={{ backgroundColor: 'rgba(0, 11, 226, 0.35)' }} // #000BE2 with 35% opacity (reduced from 70%)
+              style={{ backgroundColor: 'rgba(0, 11, 226, 0.35)' }} 
             />
-            
-            {/* Bright teal/mint glow - #43FFC0 with reduced opacity */}
             <div 
               className="absolute top-[30%] left-[30%] w-[90vh] h-[90vh] rounded-full filter blur-[100px] mix-blend-screen animate-float" 
-              style={{ backgroundColor: 'rgba(67, 255, 192, 0.3)' }} // #43FFC0 with 30% opacity (reduced from 70%)
+              style={{ backgroundColor: 'rgba(67, 255, 192, 0.3)' }} 
             />
-            
-            {/* Light purple/lavender glow - #B0A9FF with reduced opacity */}
             <div 
               className="absolute top-[70%] left-[20%] w-[70vh] h-[70vh] rounded-full filter blur-[80px] mix-blend-screen animate-pulse-slow animation-delay-2000" 
-              style={{ backgroundColor: 'rgba(176, 169, 255, 0.25)' }} // #B0A9FF with 25% opacity (reduced from 50%)
+              style={{ backgroundColor: 'rgba(176, 169, 255, 0.25)' }} 
             />
             
-            {/* Additional accent glows with the same colors but at reduced opacity */}
-            <div 
-              className="absolute top-[15%] left-[75%] w-[50vh] h-[50vh] rounded-full filter blur-[70px] mix-blend-screen animate-float animation-delay-3000" 
-              style={{ backgroundColor: 'rgba(176, 169, 255, 0.15)' }} // #B0A9FF with 15% opacity (reduced from 30%)
-            />
+            {/* Additional floating elements - more visible */}
+            {/* Floating particles */}
+            <div className="absolute inset-0 overflow-hidden">
+              {/* Particle 1 */}
+              <div className="absolute w-24 h-24 rounded-full bg-blue-500/10 top-[15%] left-[10%] animate-float-particle" />
+              <div className="absolute w-16 h-16 rounded-full bg-cyan-500/15 top-[25%] left-[85%] animate-float-particle animation-delay-2000" />
+              <div className="absolute w-20 h-20 rounded-full bg-purple-500/10 top-[75%] left-[60%] animate-float-particle animation-delay-4000" />
+              <div className="absolute w-32 h-32 rounded-full bg-teal-500/5 top-[55%] left-[25%] animate-float-particle animation-delay-3000" />
+              <div className="absolute w-28 h-28 rounded-full bg-indigo-500/10 top-[35%] left-[75%] animate-float-particle animation-delay-1000" />
+              
+              {/* Light beams */}
+              <div className="absolute h-[40vh] w-[2px] bg-gradient-to-b from-blue-500/0 via-blue-500/10 to-blue-500/0 top-0 left-[20%] animate-light-beam" />
+              <div className="absolute h-[30vh] w-[2px] bg-gradient-to-b from-cyan-500/0 via-cyan-500/10 to-cyan-500/0 top-[30%] left-[70%] animate-light-beam animation-delay-2000" />
+              <div className="absolute h-[50vh] w-[2px] bg-gradient-to-b from-purple-500/0 via-purple-500/10 to-purple-500/0 top-[20%] left-[40%] animate-light-beam animation-delay-4000" />
+              
+              {/* Floating lines */}
+              <div className="absolute w-[20vw] h-[1px] bg-gradient-to-r from-blue-500/0 via-blue-500/10 to-blue-500/0 top-[40%] left-0 animate-floating-line" />
+              <div className="absolute w-[15vw] h-[1px] bg-gradient-to-r from-cyan-500/0 via-cyan-500/10 to-cyan-500/0 top-[60%] right-0 animate-floating-line animation-delay-3000" />
+              <div className="absolute w-[25vw] h-[1px] bg-gradient-to-r from-purple-500/0 via-purple-500/15 to-purple-500/0 top-[20%] right-[20%] animate-floating-line animation-delay-1500" />
+            </div>
             
-            <div 
-              className="absolute top-[80%] left-[50%] w-[40vh] h-[40vh] rounded-full filter blur-[60px] mix-blend-screen animate-float animation-delay-4000" 
-              style={{ backgroundColor: 'rgba(67, 255, 192, 0.2)' }} // #43FFC0 with 20% opacity (reduced from 40%)
-            />
-            
-            <div 
-              className="absolute top-[40%] left-[10%] w-[30vh] h-[30vh] rounded-full filter blur-[50px] mix-blend-screen animate-pulse-slow animation-delay-1000" 
-              style={{ backgroundColor: 'rgba(0, 11, 226, 0.25)' }} // #000BE2 with 25% opacity (reduced from 50%)
-            />
-            
-            {/* Lighter edge vignette */}
+            {/* Darker edge vignette */}
             <div className="absolute inset-0 bg-gradient-radial from-transparent to-black/40" />
           </div>
         )}

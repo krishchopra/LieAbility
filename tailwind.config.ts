@@ -132,6 +132,52 @@ export default {
 					'100%': {
 						transform: 'translateY(0px)',
 					},
+				},
+				'float-particle': {
+					'0%': {
+						transform: 'translate(0px, 0px) scale(1)',
+						opacity: '0.6',
+					},
+					'33%': {
+						transform: 'translate(10px, -15px) scale(1.05)',
+						opacity: '1',
+					},
+					'66%': {
+						transform: 'translate(-8px, 10px) scale(0.95)',
+						opacity: '0.8',
+					},
+					'100%': {
+						transform: 'translate(0px, 0px) scale(1)',
+						opacity: '0.6',
+					},
+				},
+				'light-beam': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(-20px)',
+					},
+					'50%': {
+						opacity: '1',
+						transform: 'translateY(0px)',
+					},
+					'100%': {
+						opacity: '0',
+						transform: 'translateY(20px)',
+					},
+				},
+				'floating-line': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateX(-20px)',
+					},
+					'50%': {
+						opacity: '1',
+						transform: 'translateX(0px)',
+					},
+					'100%': {
+						opacity: '0',
+						transform: 'translateX(20px)',
+					},
 				}
 			},
 			animation: {
@@ -141,6 +187,9 @@ export default {
 				'blob': 'blob 7s infinite',
 				'pulse-slow': 'pulse-slow 8s ease-in-out infinite',
 				'float': 'float 12s ease-in-out infinite',
+				'float-particle': 'float-particle 15s ease-in-out infinite',
+				'light-beam': 'light-beam 10s ease-in-out infinite',
+				'floating-line': 'floating-line 12s ease-in-out infinite',
 			},
 			animationDelay: {
 				'1000': '1s',

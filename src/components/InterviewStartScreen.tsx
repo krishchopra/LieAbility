@@ -7,6 +7,38 @@ import { useCamera } from "@/contexts/CameraContext";
 import { AlertTriangle, Smile, Eye as EyeIcon, MessageSquare, Check } from "lucide-react";
 import { motion } from "framer-motion";
 
+// Neumorphic button component
+const NeumorphicButton = ({ 
+  children, 
+  onClick, 
+  className = "", 
+  disabled = false,
+  color = "blue" // "blue" or "accent"
+}) => {
+  const baseStyle = "relative flex items-center justify-center px-6 py-2 rounded-xl font-medium text-base transition-all duration-300 transform active:scale-95 active:shadow-inner disabled:opacity-70 disabled:cursor-not-allowed";
+  
+  const colorStyles = {
+    blue: "text-white bg-blue-600 shadow-[5px_5px_10px_rgba(0,0,30,0.3),-5px_-5px_10px_rgba(70,130,240,0.1)]",
+    accent: "text-gray-900 bg-gradient-to-r from-blue-400 to-cyan-300 shadow-[5px_5px_10px_rgba(0,0,30,0.3),-5px_-5px_10px_rgba(120,200,255,0.15)]"
+  };
+  
+  return (
+    <button
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
+      className={`${baseStyle} ${colorStyles[color]} ${className}`}
+    >
+      {/* Inner highlight effect */}
+      <span className="absolute inset-0 rounded-xl overflow-hidden">
+        <span className="absolute inset-0 opacity-20 bg-gradient-to-b from-white via-transparent to-transparent"></span>
+      </span>
+      
+      {/* Button content */}
+      <span className="relative z-10">{children}</span>
+    </button>
+  );
+};
+
 interface InterviewStartScreenProps {
   onStart: () => void;
 }
@@ -34,7 +66,7 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
 
   // Common box styling
   const boxStyle = {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)', // #FFFFFF at 10% opacity
+    backgroundColor: 'rgba(255, 255, 255, 0.85)', // #FFFFFF at 10% opacity
     border: '1px solid rgba(255, 255, 255, 0.5)', // White stroke at 50% opacity
     backdropFilter: 'blur(24px)', // 24px background blur
     boxShadow: '0 8px 16px rgba(62, 85, 145, 0.5)', // #3E5591 drop shadow at 50% opacity
@@ -75,7 +107,7 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
   return (
     <MovingGradientBackground variant="dark">
       <motion.div 
-        className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 space-y-8 max-w-3xl mx-auto"
+        className="min-h-screen flex flex-col items-center justify-center p-2 md:p-4 space-y-8 max-w-5xl mx-auto w-[95%]"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
@@ -86,9 +118,12 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
           variants={itemVariants}
         >
           <AnimatedEye size={130} />
-          <h1 className="text-6xl font-extrabold text-white tracking-tight">
-            LieAbility
-          </h1>
+          <div className="text-center">
+            <h1 className="text-6xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
+              LieAbility
+            </h1>
+            <p className="text-gray-400 mt-2 text-lg font-medium">Authenticity-based behavioral assessment</p>
+          </div>
         </motion.div>
 
         {/* Warning Card */}
@@ -118,17 +153,17 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
           style={boxStyle}
           variants={itemVariants}
         >
-          <p className="text-white text-lg font-medium text-center mb-6">
+          <p className="text-black text-lg font-medium text-center mb-6">
             This assessment requires camera and microphone access for behavioral analysis.
           </p>
 
           <div className="flex justify-center">
-            <Button
+            <NeumorphicButton
               onClick={handleTestCamera}
-              className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg font-medium"
+              color="blue"
             >
               Test Mic and Camera
-            </Button>
+            </NeumorphicButton>
           </div>
 
           {/* Camera Test Section */}
@@ -145,12 +180,12 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
                     Camera Error
                   </p>
                   <p className="text-gray-300 text-sm mb-4">{cameraError}</p>
-                  <Button
+                  <NeumorphicButton
                     onClick={startCamera}
-                    className="bg-red-600 hover:bg-red-500 text-white transition-colors duration-300"
+                    className="bg-red-600 hover:bg-red-500 text-white"
                   >
                     Try Again
-                  </Button>
+                  </NeumorphicButton>
                 </div>
               )}
 
@@ -186,18 +221,18 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
           style={boxStyle}
           variants={itemVariants}
         >
-          <h3 className="text-white text-xl font-semibold mb-6 text-center">
+          <h3 className="text-black text-xl font-semibold mb-6 text-center">
             What will be measured:
           </h3>
           
-          <div className="space-y-3">
+          <div className="space-y-3 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
             <motion.div 
               className="p-4 rounded-xl flex items-center gap-4 group transition-all duration-300 hover:scale-[1.02]" 
               style={innerBoxStyle}
               whileHover={{ backgroundColor: 'rgba(211, 249, 214, 0.15)' }}
             >
               <Smile className={iconStyle} />
-              <span className="text-white font-medium">Emotion analysis</span>
+              <span className="text-black font-medium">Emotion analysis</span>
             </motion.div>
             
             <motion.div 
@@ -206,7 +241,7 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
               whileHover={{ backgroundColor: 'rgba(211, 249, 214, 0.15)' }}
             >
               <EyeIcon className={iconStyle} />
-              <span className="text-white font-medium">Facial cues</span>
+              <span className="text-black font-medium">Facial cues</span>
             </motion.div>
             
             <motion.div 
@@ -215,7 +250,7 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
               whileHover={{ backgroundColor: 'rgba(211, 249, 214, 0.15)' }}
             >
               <MessageSquare className={iconStyle} />
-              <span className="text-white font-medium">Speech patterns</span>
+              <span className="text-black font-medium">Speech patterns</span>
             </motion.div>
             
             <motion.div 
@@ -224,7 +259,7 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
               whileHover={{ backgroundColor: 'rgba(211, 249, 214, 0.15)' }}
             >
               <Check className={iconStyle} />
-              <span className="text-white font-medium">Truthfulness indicators</span>
+              <span className="text-black font-medium">Truthfulness indicators</span>
             </motion.div>
           </div>
         </motion.div>
@@ -234,13 +269,14 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
           className="mt-4"
           variants={itemVariants}
         >
-          <Button
+          <NeumorphicButton
             onClick={handleStartInterview}
             disabled={showCameraTest && !isStreaming}
-            className="bg-gradient-to-r from-blue-400 to-cyan-300 hover:from-blue-500 hover:to-cyan-400 text-gray-900 font-semibold px-10 py-4 text-lg rounded-full min-w-[200px] shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
+            color="accent"
+            className="min-w-[200px] px-8 py-3 text-lg rounded-full bg-gradient-to-r from-blue-400 to-cyan-300 shadow-[8px_8px_16px_rgba(0,0,30,0.4),-8px_-8px_16px_rgba(120,200,255,0.25)] border border-white/20"
           >
-            Begin
-          </Button>
+            <span className="drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)]">Begin</span>
+          </NeumorphicButton>
         </motion.div>
       </motion.div>
     </MovingGradientBackground>
