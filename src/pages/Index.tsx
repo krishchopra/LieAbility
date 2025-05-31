@@ -1,14 +1,47 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React, { useState } from 'react';
+import InterviewStartScreen from '@/components/InterviewStartScreen';
+import InterviewScreen from '@/components/InterviewScreen';
+import ProcessingScreen from '@/components/ProcessingScreen';
+import ResultsScreen from '@/components/ResultsScreen';
+
+type AppState = 'start' | 'interview' | 'processing' | 'results';
 
 const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
-    </div>
-  );
+  const [currentScreen, setCurrentScreen] = useState<AppState>('start');
+
+  const handleStart = () => {
+    console.log('Starting interview...');
+    setCurrentScreen('interview');
+  };
+
+  const handleInterviewComplete = () => {
+    console.log('Interview completed, processing...');
+    setCurrentScreen('processing');
+  };
+
+  const handleProcessingComplete = () => {
+    console.log('Processing completed, showing results...');
+    setCurrentScreen('results');
+  };
+
+  const handleReset = () => {
+    console.log('Resetting interview...');
+    setCurrentScreen('start');
+  };
+
+  switch (currentScreen) {
+    case 'start':
+      return <InterviewStartScreen onStart={handleStart} />;
+    case 'interview':
+      return <InterviewScreen onComplete={handleInterviewComplete} onReset={handleReset} />;
+    case 'processing':
+      return <ProcessingScreen onComplete={handleProcessingComplete} />;
+    case 'results':
+      return <ResultsScreen onReset={handleReset} />;
+    default:
+      return <InterviewStartScreen onStart={handleStart} />;
+  }
 };
 
 export default Index;
