@@ -11,8 +11,8 @@ interface InterviewScreenProps {
 }
 
 const questions = [
-  "Do you want to work for this company?",
-  "What experience do you have with XYZ technology?",
+  "Why do you want to work for us?",
+  "What experience do you have with blockchain technology?",
 ];
 
 const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
