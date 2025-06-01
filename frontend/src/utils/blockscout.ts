@@ -5,7 +5,7 @@ const BLOCKSCOUT_CONFIG = {
   testnet: {
     apiUrl: "https://hashscan.io/testnet/api",
     explorerUrl: "https://hashscan.io/testnet",
-    // Note: Hedera uses HashScan as their BlockScout instance
+    // Hedera uses HashScan as their BlockScout instance
   },
   mainnet: {
     apiUrl: "https://hashscan.io/mainnet/api",
