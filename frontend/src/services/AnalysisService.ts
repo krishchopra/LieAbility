@@ -447,9 +447,6 @@ class AnalysisService {
   generateAuthenticityScore(questionText?: string): AuthenticityScore {
     if (this.emotionHistory.length === 0 && this.speechHistory.length === 0) {
       let fallbackOverall = 65;
-      if (fallbackOverall < 75) {
-        fallbackOverall = Math.floor(Math.random() * (90 - 75 + 1)) + 75;
-      }
       return {
         overall: fallbackOverall,
         facial: 60,
