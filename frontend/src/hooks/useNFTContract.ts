@@ -65,17 +65,28 @@ export function useNFTContract() {
   ) => {
     try {
       const contractToUse = contractInstance || contract;
-      if (!contractToUse) return;
+      if (!contractToUse) {
+        console.log("❌ No contract instance available");
+        return;
+      }
+
+      console.log("🔍 Checking eligibility for:", address);
+      console.log("📋 Contract address:", CONTRACT_ADDRESS);
 
       // Wrap in try-catch to handle ENS resolution errors on Hedera
       const [eligible, score] = await contractToUse.getEligibilityInfo(address);
+
+      console.log("✅ Eligibility check result:", {
+        eligible,
+        score: Number(score),
+      });
 
       setEligibilityInfo({
         eligible: eligible,
         score: Number(score),
       });
     } catch (error: any) {
-      console.error("Error checking eligibility:", error);
+      console.error("❌ Error checking eligibility:", error);
 
       // Don't show ENS errors to user - they're harmless
       if (!error.message?.includes("ENS")) {
@@ -168,7 +179,7 @@ export function useNFTContract() {
         );
 
         // Refresh eligibility status
-        setTimeout(() => checkEligibility(account), 2000);
+        setTimeout(() => checkEligibility(account), 3000);
         return true;
       } else {
         throw new Error(data.error || "Assessment submission failed");
@@ -217,7 +228,7 @@ export function useNFTContract() {
       console.log("Transaction confirmed:", receipt);
 
       // Refresh eligibility status
-      setTimeout(() => checkEligibility(account), 2000);
+      setTimeout(() => checkEligibility(account), 3000);
 
       return true;
     } catch (error: any) {

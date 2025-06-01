@@ -1,4 +1,3 @@
-require("dotenv").config();
 const {
   Client,
   ContractCreateFlow,
@@ -8,6 +7,7 @@ const {
 const fs = require("fs");
 const solc = require("solc");
 const path = require("path");
+require("dotenv").config();
 
 // Compile the smart contract
 function compileContract() {
@@ -69,9 +69,6 @@ async function deployContract() {
     console.error(
       "❌ Missing required environment variables: HEDERA_ACCOUNT_ID, HEDERA_PRIVATE_KEY"
     );
-    console.log("Please set these in your .env file:");
-    console.log("HEDERA_ACCOUNT_ID=0.0.your_account_id");
-    console.log("HEDERA_PRIVATE_KEY=your_private_key_in_der_format");
     process.exit(1);
   }
 
@@ -83,14 +80,14 @@ async function deployContract() {
     const client = Client.forTestnet();
     client.setOperator(
       AccountId.fromString(process.env.HEDERA_ACCOUNT_ID),
-      PrivateKey.fromStringDer(process.env.HEDERA_PRIVATE_KEY)
+      PrivateKey.fromString(process.env.HEDERA_PRIVATE_KEY)
     );
 
     console.log("🔗 Connected to Hedera Testnet");
     console.log("👤 Using account:", process.env.HEDERA_ACCOUNT_ID);
 
     // Deploy using ContractCreateFlow (simpler approach)
-    console.log("�� Deploying contract...");
+    console.log("🚀 Deploying contract...");
 
     const contractCreateTx = new ContractCreateFlow()
       .setBytecode(bytecode)
@@ -106,39 +103,19 @@ async function deployContract() {
     console.log("✅ Contract deployed successfully!");
     console.log("📄 Contract ID:", contractId.toString());
     console.log("🏠 EVM Address:", "0x" + contractAddress);
-    console.log(
-      "⛽ Gas used:",
-      contractCreateRx.gasUsed?.toString() || "Unknown"
-    );
-
-    // Save deployment info to backend directory
-    const deploymentInfo = {
-      contractId: contractId.toString(),
-      evmAddress: "0x" + contractAddress,
-      deployedAt: new Date().toISOString(),
-      network: "testnet",
-      abi: abi,
-    };
-
-    fs.writeFileSync(
-      path.join(__dirname, "deployment.json"),
-      JSON.stringify(deploymentInfo, null, 2)
-    );
-
-    console.log("💾 Deployment info saved to deployment.json");
 
     console.log("\n📋 Next Steps:");
-    console.log("1. Add this to your backend/.env file:");
+    console.log("1. Update your backend/.env file:");
     console.log(`   CONTRACT_ID=${contractId.toString()}`);
-    console.log(
-      "\n2. Your backend can now interact with the deployed contract!"
-    );
+    console.log("\n2. Update your frontend/.env file:");
+    console.log(`   VITE_CONTRACT_ADDRESS=0x${contractAddress}`);
     console.log("\n3. View your contract on HashScan:");
     console.log(
       `   https://hashscan.io/testnet/contract/${contractId.toString()}`
     );
 
-    return deploymentInfo;
+    client.close();
+    return contractId.toString();
   } catch (error) {
     console.error("❌ Deployment failed:", error);
     process.exit(1);
@@ -150,4 +127,4 @@ if (require.main === module) {
   deployContract();
 }
 
-module.exports = { deployContract, compileContract };
+module.exports = { deployContract };

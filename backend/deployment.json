@@ -1,7 +1,7 @@
 {
-  "contractId": "0.0.6093634",
-  "evmAddress": "0x00000000000000000000000000000000005cfb42",
-  "deployedAt": "2025-06-01T00:29:25.483Z",
+  "contractId": "0.0.6093858",
+  "evmAddress": "0x00000000000000000000000000000000005cfc22",
+  "deployedAt": "2025-06-01T01:53:47.154Z",
   "network": "testnet",
   "abi": [
     {
@@ -229,11 +229,6 @@
           "internalType": "uint256",
           "name": "score",
           "type": "uint256"
-        },
-        {
-          "internalType": "bool",
-          "name": "minted",
-          "type": "bool"
         }
       ],
       "stateMutability": "view",
@@ -255,25 +250,6 @@
       "name": "grantEligibility",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "hasMinted",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
       "type": "function"
     },
     {

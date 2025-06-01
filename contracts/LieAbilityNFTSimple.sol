@@ -96,7 +96,7 @@ contract LieAbilityNFTSimple is IERC165, IERC721, IERC721Metadata {
     
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         require(_exists(tokenId), "Token does not exist");
-        return string(abi.encodePacked("https://api.lieability.com/nft/metadata/", _toString(tokenId)));
+        return string(abi.encodePacked("https://lieability.com/nft/", _toString(tokenId)));
     }
     
     // ERC721 implementation
