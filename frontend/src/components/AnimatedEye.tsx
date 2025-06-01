@@ -32,13 +32,13 @@ const AnimatedEye = ({ size = 80 }: { size?: number }) => {
           />
         </div>
         
-        {/* Pulsing center - reduced */}
+        {/* Pulsing center - reduced
         <div className="absolute animate-ping opacity-10 flex items-center justify-center">
           <div 
             className="rounded-full bg-cyan-600"
             style={{ width: size / 6, height: size / 6 }}
           />
-        </div>
+        </div> */}
       </div>
     </div>
   );
