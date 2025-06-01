@@ -127,7 +127,7 @@ const InterviewStartScreen = ({ onStart, onTestCamera }: InterviewStartScreenPro
               <AlertTriangle className="h-8 w-8 text-yellow-400" />
             </div>
             <p className="text-white text-lg font-medium leading-relaxed">
-              You're about to begin an authenticity-based behavioral assessment. You won't be able to pause or redo this once started.
+              You won't be able to pause or redo this once started.
             </p>
           </div>
         </motion.div>
@@ -189,7 +189,7 @@ const InterviewStartScreen = ({ onStart, onTestCamera }: InterviewStartScreenPro
           <NeumorphicButton
             onClick={onTestCamera}
             color="accent"
-            className="min-w-[200px] px-8 py-3 text-lg rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 "
+            className="min-w-[200px] px-8 py-3 text-lg rounded-full bg-gradient-to-r from-[#274BA9] to-[#6E87C9] "
           >
             <span className="text-white drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)]">Test Mic and Camera</span>
           </NeumorphicButton>

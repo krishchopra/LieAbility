@@ -27,7 +27,7 @@ const MovingGradientBackground = ({ children, variant = 'dark' }: MovingGradient
             {/* Dark background base */}
             <div className="absolute inset-0 bg-black" />
             
-            {/* Grid overlay */}
+            {/* Grid overlay
             <div className="absolute inset-0 z-0 opacity-60" 
                  style={{
                    backgroundImage: `
@@ -37,7 +37,7 @@ const MovingGradientBackground = ({ children, variant = 'dark' }: MovingGradient
                    backgroundSize: '40px 40px',
                    backgroundPosition: 'center center'
                  }}
-            />
+            /> */}
             
             {/* Main gradients */}
             <div 
@@ -46,7 +46,7 @@ const MovingGradientBackground = ({ children, variant = 'dark' }: MovingGradient
             />
             <div 
               className="absolute top-[30%] left-[30%] w-[90vh] h-[90vh] rounded-full filter blur-[100px] mix-blend-screen animate-float" 
-              style={{ backgroundColor: 'rgba(67, 255, 192, 0.3)' }} 
+              style={{ backgroundColor: 'rgba(67, 167, 255, 0.3)' }} 
             />
             <div 
               className="absolute top-[70%] left-[20%] w-[70vh] h-[70vh] rounded-full filter blur-[80px] mix-blend-screen animate-pulse-slow animation-delay-2000" 
