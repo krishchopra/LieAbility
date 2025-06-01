@@ -54,6 +54,9 @@ contract LieAbilityNFTSimple is IERC165, IERC721, IERC721Metadata {
     // Mapping to track trust scores
     mapping(address => uint256) public trustScores;
     
+    // Mapping from token ID to the score it was minted with
+    mapping(uint256 => uint256) public tokenScores;
+    
     // Constants
     uint256 public constant MIN_TRUST_SCORE = 75;
     uint256 public constant MAX_SUPPLY = 10000;
@@ -96,7 +99,7 @@ contract LieAbilityNFTSimple is IERC165, IERC721, IERC721Metadata {
     
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         require(_exists(tokenId), "Token does not exist");
-        return string(abi.encodePacked("https://lieability.com/nft/", _toString(tokenId)));
+        return string(abi.encodePacked("http://localhost:3001/api/nft/metadata/", _toString(tokenId)));
     }
     
     // ERC721 implementation
@@ -172,6 +175,9 @@ contract LieAbilityNFTSimple is IERC165, IERC721, IERC721Metadata {
         uint256 tokenId = _tokenIdCounter;
         _tokenIdCounter++;
         
+        // Store the score for this token
+        tokenScores[tokenId] = trustScores[msg.sender];
+        
         _safeMint(msg.sender, tokenId);
         
         emit LieAbilityNFTMinted(msg.sender, tokenId, trustScores[msg.sender]);
@@ -179,6 +185,11 @@ contract LieAbilityNFTSimple is IERC165, IERC721, IERC721Metadata {
     
     function getEligibilityInfo(address user) external view returns (bool eligible, uint256 score) {
         return (isEligible[user], trustScores[user]);
+    }
+    
+    function getTokenScore(uint256 tokenId) external view returns (uint256) {
+        require(_exists(tokenId), "Token does not exist");
+        return tokenScores[tokenId];
     }
     
     function totalSupply() external view returns (uint256) {

@@ -9,6 +9,7 @@ const CONTRACT_ABI = [
   "function balanceOf(address owner) external view returns (uint256)",
   "function totalSupply() external view returns (uint256)",
   "function getEligibilityInfo(address user) external view returns (bool eligible, uint256 score)",
+  "function getTokenScore(uint256 tokenId) external view returns (uint256)",
   "function isEligible(address user) external view returns (bool)",
   "function grantEligibility(address[] users, uint256[] scores) external",
   "function name() external view returns (string)",
@@ -178,8 +179,20 @@ export function useNFTContract() {
           "Assessment verified! You are now eligible to mint an NFT."
         );
 
-        // Refresh eligibility status
-        setTimeout(() => checkEligibility(account), 3000);
+        // Refresh eligibility status with multiple attempts
+        console.log("🔄 Starting eligibility refresh sequence...");
+        setTimeout(() => {
+          console.log("🔄 Attempt 1: Checking eligibility...");
+          checkEligibility(account);
+        }, 2000);
+        setTimeout(() => {
+          console.log("🔄 Attempt 2: Checking eligibility...");
+          checkEligibility(account);
+        }, 5000);
+        setTimeout(() => {
+          console.log("🔄 Attempt 3: Checking eligibility...");
+          checkEligibility(account);
+        }, 8000);
         return true;
       } else {
         throw new Error(data.error || "Assessment submission failed");
