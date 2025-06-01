@@ -132,13 +132,11 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
   };
 
   return (
-    <MovingGradientBackground variant="cyan">
+    <div className="bg-black min-h-screen">
       <div className="min-h-screen flex flex-col p-4">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-white text-2xl font-bold">
-            Question {currentQuestion + 1} of {questions.length}
-          </h2>
+          <div className="w-6"></div> {/* Empty space for balance */}
           <Button
             onClick={handleReset}
             variant="outline"
@@ -149,10 +147,32 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
         </div>
 
         {/* Question Card */}
-        <Card className="bg-gray-900/80 border-gray-700 backdrop-blur-sm p-8 mb-6">
-          <h3 className="text-white text-3xl font-semibold text-center animate-fade-in">
-            {questions[currentQuestion]}
-          </h3>
+        <Card className="border-blue-700/50 backdrop-blur-sm p-8 mb-6 overflow-hidden relative" 
+              style={{ backgroundColor: 'rgba(10, 10, 40, 0.8)' }}>
+          {/* Gradient accent - matching MovingGradientBackground gradients */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div 
+              className="absolute top-[30%] right-[60%] w-[50vh] h-[50vh] rounded-full filter blur-[80px] mix-blend-screen animate-pulse-slow" 
+              style={{ backgroundColor: 'rgba(0, 11, 226, 0.35)' }} 
+            />
+            <div 
+              className="absolute bottom-[20%] left-[40%] w-[30vh] h-[30vh] rounded-full filter blur-[60px] mix-blend-screen animate-float" 
+              style={{ backgroundColor: 'rgba(67, 167, 255, 0.3)' }} 
+            />
+            <div 
+              className="absolute top-[10%] left-[60%] w-[25vh] h-[25vh] rounded-full filter blur-[50px] mix-blend-screen animate-pulse-slow animation-delay-2000" 
+              style={{ backgroundColor: 'rgba(176, 169, 255, 0.25)' }} 
+            />
+          </div>
+          
+          <div className="flex flex-col md:flex-row items-start md:items-center relative z-10">
+            <div className="bg-blue-800/50 text-blue-100 text-xs font-medium px-3 py-1.5 rounded-full mb-4 md:mb-0 md:mr-6 border border-blue-700/50 backdrop-blur-sm shadow-inner">
+              Question {currentQuestion + 1} of {questions.length}
+            </div>
+            <h3 className="text-white text-3xl font-semibold text-center md:text-left animate-fade-in">
+              {questions[currentQuestion]}
+            </h3>
+          </div>
         </Card>
 
         {/* Main Content Area */}
@@ -264,7 +284,7 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
                   <p className="text-gray-400 text-sm mb-2">
                     Recording starts in:
                   </p>
-                  <div className="text-6xl font-bold text-cyan-400">
+                  <div className="text-6xl font-bold text-[#AABAE4]">
                     {countdown}
                   </div>
                 </div>
@@ -276,7 +296,7 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
                   </div>
                   <div className="mt-4 w-full bg-gray-700 rounded-full h-2">
                     <div
-                      className="bg-gradient-to-r from-cyan-400 to-blue-500 h-2 rounded-full transition-all duration-1000"
+                      className="bg-gradient-to-r from-[#D3F9D6] to-[#6C85C4] h-2 rounded-full transition-all duration-1000"
                       style={{ width: `${(timeLeft / 60) * 100}%` }}
                     />
                   </div>
@@ -318,7 +338,7 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
           </div>
         </div>
       </div>
-    </MovingGradientBackground>
+    </div>
   );
 };
 

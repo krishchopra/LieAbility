@@ -1,26 +1,44 @@
-
 import React from 'react';
-import { Eye } from 'lucide-react';
 
 const AnimatedEye = ({ size = 80 }: { size?: number }) => {
   return (
     <div className="relative flex items-center justify-center">
-      <div className="absolute inset-0 animate-pulse">
+      {/* Background circle - smaller and translucent */}
+      <div 
+        className="rounded-full flex items-center justify-center"
+        style={{ 
+          width: size * 1.2, 
+          height: size * 1.2, 
+          backgroundColor: 'rgba(176, 169, 255, 0.2)' // #B0A9FF with 20% opacity
+        }}
+      >
+        {/* Glowing effect - reduced */}
+        <div className="absolute inset-0 animate-pulse flex items-center justify-center">
+          <div 
+            className="rounded-full bg-gradient-to-r from-cyan-600/10 to-blue-700/10 opacity-20"
+            style={{ width: size * 1.1, height: size * 1.1 }}
+          />
+        </div>
+        
+        {/* Custom Eye logo - bigger */}
         <div 
-          className="rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-20"
-          style={{ width: size + 20, height: size + 20 }}
-        />
-      </div>
-      <Eye 
-        size={size} 
-        className="text-cyan-400 animate-pulse relative z-10"
-        strokeWidth={1.5}
-      />
-      <div className="absolute inset-0 animate-ping opacity-20">
-        <div 
-          className="rounded-full bg-cyan-400"
-          style={{ width: size / 2, height: size / 2, margin: 'auto', marginTop: size / 4 }}
-        />
+          className="relative z-10 animate-pulse flex items-center justify-center"
+          style={{ width: size, height: size }}
+        >
+          <img 
+            src="/logo.png" 
+            alt="LieAbility Eye Logo" 
+            className="object-contain max-w-full max-h-full w-auto h-auto" 
+          />
+        </div>
+        
+        {/* Pulsing center - reduced */}
+        <div className="absolute animate-ping opacity-10 flex items-center justify-center">
+          <div 
+            className="rounded-full bg-cyan-600"
+            style={{ width: size / 6, height: size / 6 }}
+          />
+        </div>
       </div>
     </div>
   );

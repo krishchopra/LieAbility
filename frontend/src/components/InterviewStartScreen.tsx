@@ -4,233 +4,200 @@ import { Card } from "@/components/ui/card";
 import AnimatedEye from "./AnimatedEye";
 import MovingGradientBackground from "./MovingGradientBackground";
 import { useCamera } from "@/contexts/CameraContext";
+import { AlertTriangle, Smile, Eye as EyeIcon, MessageSquare, Check } from "lucide-react";
+import { motion } from "framer-motion";
+
+// Neumorphic button component
+const NeumorphicButton = ({ 
+  children, 
+  onClick, 
+  className = "", 
+  disabled = false,
+  color = "blue" // "blue" or "accent"
+}) => {
+  const baseStyle = "relative flex items-center justify-center px-6 py-2 rounded-xl font-medium text-base transition-all duration-300 transform active:scale-95 active:shadow-inner disabled:opacity-70 disabled:cursor-not-allowed";
+  
+  const colorStyles = {
+    blue: "text-white bg-blue-600 shadow-[5px_5px_10px_rgba(0,0,30,0.3),-5px_-5px_10px_rgba(70,130,240,0.1)]",
+    accent: "text-gray-900 bg-gradient-to-r from-blue-400 to-cyan-300 shadow-[5px_5px_10px_rgba(0,0,30,0.3),-5px_-5px_10px_rgba(120,200,255,0.15)]"
+  };
+  
+  return (
+    <button
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
+      className={`${baseStyle} ${colorStyles[color]} ${className}`}
+    >
+      {/* Inner highlight effect */}
+      <span className="absolute inset-0 rounded-xl overflow-hidden">
+        <span className="absolute inset-0 opacity-20 bg-gradient-to-b from-white via-transparent to-transparent"></span>
+      </span>
+      
+      {/* Button content */}
+      <span className="relative z-10">{children}</span>
+    </button>
+  );
+};
 
 interface InterviewStartScreenProps {
   onStart: () => void;
+  onTestCamera: () => void;
 }
 
-const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
-  const [showCameraTest, setShowCameraTest] = useState(false);
-  const {
-    videoRef,
-    stream,
-    isStreaming,
-    hasPermission,
-    error: cameraError,
-    startCamera,
-    stopCamera,
-  } = useCamera();
+const InterviewStartScreen = ({ onStart, onTestCamera }: InterviewStartScreenProps) => {
+  const { hasPermission, error: cameraError } = useCamera();
 
-  // Effect to ensure video element is connected to stream when showing camera test
-  useEffect(() => {
-    if (showCameraTest && isStreaming && stream && videoRef.current) {
-      console.log(
-        "🎥 [StartScreen] Connecting video element to existing stream"
-      );
-      videoRef.current.srcObject = stream;
+  // Common box styling
+  const boxStyle = {
+    backgroundColor: 'rgba(255, 255, 255, 0.85)', // #FFFFFF at 10% opacity
+    border: '1px solid rgba(255, 255, 255, 0.5)', // White stroke at 50% opacity
+    backdropFilter: 'blur(24px)', // 24px background blur
+    boxShadow: '0 8px 16px rgba(62, 85, 145, 0.5)', // #3E5591 drop shadow at 50% opacity
+  };
 
-      // Ensure video plays
-      videoRef.current.play().catch((error) => {
-        console.warn("🎥 [StartScreen] Video autoplay failed:", error);
-      });
-    }
-  }, [showCameraTest, isStreaming, stream]);
+  // Inner box styling for "What will be measured" items
+  const innerBoxStyle = {
+    backgroundColor: 'rgba(211, 249, 214, 0.1)', // #D3F9D6 at 10% opacity
+    backdropFilter: 'blur(24px)', // 24px background blur
+  };
 
-  const handleTestCamera = async () => {
-    setShowCameraTest(true);
-
-    // If camera is already streaming, just ensure video connection
-    if (isStreaming && stream) {
-      console.log(
-        "🎥 [StartScreen] Camera already active, connecting to video element"
-      );
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        try {
-          await videoRef.current.play();
-        } catch (error) {
-          console.warn("🎥 [StartScreen] Video play failed:", error);
-        }
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15
       }
-    } else {
-      // Start camera if not already running
-      console.log("🎥 [StartScreen] Starting camera for test");
-      await startCamera();
     }
   };
 
-  const handleStartInterview = () => {
-    // Camera will continue running via context
-    onStart();
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        type: "spring", 
+        stiffness: 260, 
+        damping: 20 
+      } 
+    }
   };
+
+  const iconStyle = "h-6 w-6 text-blue-400 group-hover:text-blue-300 transition-colors duration-300";
 
   return (
     <MovingGradientBackground variant="dark">
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="max-w-2xl w-full space-y-8 text-center">
-          {/* Logo */}
-          <div className="flex flex-col items-center space-y-4">
-            <AnimatedEye size={120} />
-            <h1 className="text-6xl font-bold text-white">
-              Lie<span className="text-cyan-400">Ability</span>
+      <motion.div 
+        className="min-h-screen flex flex-col items-center justify-center p-2 md:p-4 space-y-8 max-w-5xl mx-auto w-[95%]"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+      >
+        {/* Logo */}
+        <motion.div 
+          className="flex flex-col items-center space-y-3 mb-6"
+          variants={itemVariants}
+        >
+          <AnimatedEye size={90} />
+          <div className="text-center">
+            <h1 className="text-5xl font-extrabold tracking-tight flex justify-center">
+              <span className="bg-gradient-to-r from-white via-white to-white bg-clip-text text-transparent drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
+                Lie
+              </span>
+              <span className="text-[#8CA1D6] drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
+                Ability
+              </span>
             </h1>
-            <p className="text-gray-300 text-lg">
-              Authenticity-based behavioral assessment
-            </p>
+            <p className="text-gray-400 mt-2 text-lg font-medium">Authenticity-based behavioral assessment</p>
           </div>
+        </motion.div>
 
-          {/* Warning Card */}
-          <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm p-6">
-            <p className="text-white text-lg mb-4">
-              You're about to begin an authenticity-based behavioral assessment.
+        {/* Warning Card */}
+        <motion.div 
+          className="w-full rounded-xl p-7 relative overflow-hidden"
+          style={{
+            backgroundColor: 'rgba(255, 205, 5, 0.2)', // #FFCD05 at 20% opacity
+            border: '1px solid rgba(255, 255, 255, 0.5)', // White stroke at 50% opacity
+            backdropFilter: 'blur(24px)', // 24px background blur
+            boxShadow: '0 8px 16px rgba(62, 85, 145, 0.5)', // #3E5591 drop shadow at 50% opacity
+          }}
+          variants={itemVariants}
+        >
+          <div className="flex items-start gap-5">
+            <div className="bg-transparent flex-shrink-0 p-1">
+              <AlertTriangle className="h-8 w-8 text-yellow-400" />
+            </div>
+            <p className="text-white text-lg font-medium leading-relaxed">
               You won't be able to pause or redo this once started.
             </p>
-          </Card>
+          </div>
+        </motion.div>
 
-          {/* Camera Requirements Card */}
-          <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm p-6">
-            <h3 className="text-white text-xl font-semibold mb-4">
-              Camera & Audio Required
-            </h3>
-            <p className="text-gray-300 mb-4">
-              This assessment requires camera and microphone access for
-              behavioral analysis.
-            </p>
+        {/* What Will Be Measured Card */}
+        <motion.div 
+          className="w-full rounded-xl p-7 relative overflow-hidden"
+          style={boxStyle}
+          variants={itemVariants}
+        >
+          <h3 className="text-black text-xl font-semibold mb-6 text-center">
+            What will be measured:
+          </h3>
+          
+          <div className="space-y-3 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
+            <motion.div 
+              className="p-4 rounded-xl flex items-center gap-4 group transition-all duration-300 hover:scale-[1.02]" 
+              style={innerBoxStyle}
+              whileHover={{ backgroundColor: 'rgba(211, 249, 214, 0.15)' }}
+            >
+              <Smile className={iconStyle} />
+              <span className="text-black font-medium">Emotion analysis</span>
+            </motion.div>
+            
+            <motion.div 
+              className="p-4 rounded-xl flex items-center gap-4 group transition-all duration-300 hover:scale-[1.02]" 
+              style={innerBoxStyle}
+              whileHover={{ backgroundColor: 'rgba(211, 249, 214, 0.15)' }}
+            >
+              <EyeIcon className={iconStyle} />
+              <span className="text-black font-medium">Facial cues</span>
+            </motion.div>
+            
+            <motion.div 
+              className="p-4 rounded-xl flex items-center gap-4 group transition-all duration-300 hover:scale-[1.02]" 
+              style={innerBoxStyle}
+              whileHover={{ backgroundColor: 'rgba(211, 249, 214, 0.15)' }}
+            >
+              <MessageSquare className={iconStyle} />
+              <span className="text-black font-medium">Speech patterns</span>
+            </motion.div>
+            
+            <motion.div 
+              className="p-4 rounded-xl flex items-center gap-4 group transition-all duration-300 hover:scale-[1.02]" 
+              style={innerBoxStyle}
+              whileHover={{ backgroundColor: 'rgba(211, 249, 214, 0.15)' }}
+            >
+              <Check className={iconStyle} />
+              <span className="text-black font-medium">Truthfulness indicators</span>
+            </motion.div>
+          </div>
+        </motion.div>
 
-            {!showCameraTest && (
-              <Button
-                onClick={handleTestCamera}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 mb-4"
-              >
-                Test Camera & Microphone
-              </Button>
-            )}
-
-            {/* Camera Test Section */}
-            {showCameraTest && (
-              <div className="space-y-4">
-                {cameraError && (
-                  <div className="bg-red-900/30 border border-red-500 rounded-lg p-4">
-                    <p className="text-red-400 font-semibold mb-2">
-                      Camera Error
-                    </p>
-                    <p className="text-gray-300 text-sm mb-3">{cameraError}</p>
-                    <Button
-                      onClick={startCamera}
-                      className="bg-red-600 hover:bg-red-700 text-white"
-                    >
-                      Try Again
-                    </Button>
-                  </div>
-                )}
-
-                {!cameraError && !isStreaming && (
-                  <div className="bg-yellow-900/30 border border-yellow-500 rounded-lg p-4">
-                    <p className="text-yellow-400 font-semibold">
-                      Requesting Camera Access...
-                    </p>
-                    <p className="text-gray-300 text-sm">
-                      Please allow camera and microphone permissions
-                    </p>
-                  </div>
-                )}
-
-                {!cameraError && isStreaming && (
-                  <div className="space-y-3">
-                    <div className="bg-green-900/30 border border-green-500 rounded-lg p-4">
-                      <p className="text-green-400 font-semibold">
-                        ✓ Camera & Microphone Ready
-                      </p>
-                      <p className="text-gray-300 text-sm">
-                        You can proceed with the interview
-                      </p>
-                    </div>
-
-                    {/* Camera Preview */}
-                    <div className="bg-gray-800 rounded-lg overflow-hidden">
-                      <video
-                        ref={videoRef}
-                        autoPlay
-                        playsInline
-                        muted
-                        controls={false}
-                        style={{ transform: "scaleX(-1)" }}
-                        className="w-full h-48 object-cover"
-                        onLoadedMetadata={() =>
-                          console.log("🎥 Video metadata loaded")
-                        }
-                        onCanPlay={() => console.log("🎥 Video can play")}
-                        onPlaying={() => console.log("🎥 Video is playing")}
-                        onError={(e) => console.error("🎥 Video error:", e)}
-                      />
-                    </div>
-
-                    <Button
-                      onClick={() => {
-                        // Don't stop the camera - just hide the preview
-                        // The camera should keep running for the interview
-                        setShowCameraTest(false);
-                      }}
-                      variant="outline"
-                      className="border-gray-600 text-black-300 hover:text-white hover:bg-gray-800"
-                    >
-                      Hide Preview
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Camera Ready Status (when preview is hidden but camera is active) */}
-            {!showCameraTest && isStreaming && !cameraError && (
-              <div className="bg-green-900/30 border border-green-500 rounded-lg p-4">
-                <p className="text-green-400 font-semibold">
-                  ✓ Camera & Microphone Active
-                </p>
-                <p className="text-gray-300 text-sm">
-                  Camera is ready for the interview!
-                </p>
-              </div>
-            )}
-          </Card>
-
-          {/* Info Card */}
-          <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm p-6">
-            <h3 className="text-white text-xl font-semibold mb-4">
-              What will be measured:
-            </h3>
-            <div className="grid grid-cols-2 gap-4 text-gray-300">
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-cyan-400 rounded-full" />
-                <span>Emotion analysis</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-cyan-400 rounded-full" />
-                <span>Facial cues</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-cyan-400 rounded-full" />
-                <span>Speech patterns</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-cyan-400 rounded-full" />
-                <span>Truthfulness indicators</span>
-              </div>
-            </div>
-          </Card>
-
-          {/* Start Button */}
-          <Button
-            onClick={handleStartInterview}
-            disabled={showCameraTest && !isStreaming}
-            className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-8 py-4 text-lg font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+        {/* Begin Button */}
+        <motion.div 
+          className="mt-4"
+          variants={itemVariants}
+        >
+          <NeumorphicButton
+            onClick={onTestCamera}
+            color="accent"
+            className="min-w-[200px] px-8 py-3 text-lg rounded-full bg-gradient-to-r from-[#274BA9] to-[#6E87C9] "
           >
-            {showCameraTest && !isStreaming
-              ? "Camera Required to Begin"
-              : "I'm Ready → Begin"}
-          </Button>
-        </div>
-      </div>
+            <span className="text-white drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)]">Test Mic and Camera</span>
+          </NeumorphicButton>
+        </motion.div>
+      </motion.div>
     </MovingGradientBackground>
   );
 };

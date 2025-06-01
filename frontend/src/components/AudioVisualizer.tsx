@@ -50,7 +50,7 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
         const bandSize = Math.floor(bufferLength / 5);
         const levels = [];
 
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 7; i++) {
           const start = i * bandSize;
           const end = start + bandSize;
           let sum = 0;
@@ -84,14 +84,15 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
   }, [stream, isActive]);
 
   return (
-    <div className="flex items-center justify-center space-x-2">
+    <div className="flex items-center justify-center space-x-1.5">
       {audioLevels.map((level, i) => (
         <div
           key={i}
-          className="w-1.5 bg-green-400 rounded transition-all duration-100"
+          className="w-1.5 bg-gradient-to-t from-green-400 to-cyan-300 rounded-full transition-all duration-75"
           style={{
-            height: Math.max(level * 32 + 8, 8),
-            opacity: isActive ? 0.8 + level * 0.2 : 0.3,
+            height: Math.max(level * 40 + 4, 4), // Increased max height
+            opacity: isActive ? 0.7 + level * 0.3 : 0.3,
+            transform: `scaleY(${1 + level * 0.2})`, // Add subtle vertical scaling
           }}
         />
       ))}
