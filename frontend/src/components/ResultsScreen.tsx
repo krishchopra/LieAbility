@@ -21,6 +21,7 @@ import {
   Clock,
 } from "lucide-react";
 import AnimatedEye from "./AnimatedEye";
+import VLayerProofComponent from "./VLayerProofComponent";
 
 interface ResultsScreenProps {
   onReset: () => void;
@@ -594,20 +595,64 @@ const ResultsScreen = ({ onReset, analysisData }: ResultsScreenProps) => {
                 </div>
               )}
             </div>
+
+            {/* Assessment Info Card - Moved to left column */}
+            <div
+              className="rounded-xl p-3 relative overflow-hidden mt-6"
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.15)",
+                border: "1px solid rgba(255, 255, 255, 0.25)",
+                backdropFilter: "blur(12px)",
+                boxShadow:
+                  "0 8px 32px rgba(255, 255, 255, 0.15), 0 0 15px rgba(255, 255, 255, 0.05) inset",
+              }}
+            >
+              <div className="flex justify-between items-center text-center">
+                {/* Date */}
+                <div className="flex flex-col items-center space-y-1 px-2">
+                  <div className="p-2 rounded-full bg-blue-500/20 text-blue-300">
+                    <Clock className="h-5 w-5" />
+                  </div>
+                  <p className="text-gray-400 text-xs">Completed</p>
+                  <p className="text-white font-semibold">Just Now</p>
+                </div>
+
+                {/* Score */}
+                <div className="flex flex-col items-center space-y-1 px-2">
+                  <div className="p-2 rounded-full bg-green-500/20 text-green-300">
+                    <CheckCheck className="h-5 w-5" />
+                  </div>
+                  <p className="text-gray-400 text-xs">Score</p>
+                  <p className="text-white font-semibold">{trustScore}%</p>
+                </div>
+
+                {/* Status */}
+                <div className="flex flex-col items-center space-y-1 px-2">
+                  <div className="p-2 rounded-full bg-purple-500/20 text-purple-300">
+                    {isAuthentic ? (
+                      <Award className="h-5 w-5" />
+                    ) : (
+                      <AlertTriangle className="h-5 w-5" />
+                    )}
+                  </div>
+                  <p className="text-gray-400 text-xs">Status</p>
+                  <p className="text-white font-semibold">
+                    {isAuthentic ? "Verified" : "Unverified"}
+                  </p>
+                </div>
+              </div>
+            </div>
           </motion.div>
 
-          {/* Right Column - Breakdown */}
-          <motion.div
-            className="w-full lg:w-1/2 flex flex-col gap-4"
-            variants={itemVariants}
-          >
+          {/* Right Column - Detailed Analysis */}
+          <motion.div className="w-full lg:w-1/2" variants={itemVariants}>
+            {/* Detailed Breakdown */}
             <div
-              className="rounded-xl p-5 relative overflow-hidden"
+              className="rounded-xl p-6 relative overflow-hidden mb-6"
               style={boxStyle}
             >
-              <h3 className="text-white text-xl font-semibold mb-4 flex items-center">
-                <TrendingUp className="w-6 h-6 mr-3" />
-                Detailed AI Analysis Breakdown
+              <h3 className="text-white text-xl font-semibold mb-6 text-center">
+                Assessment Breakdown
               </h3>
 
               <div className="space-y-3">
@@ -725,7 +770,6 @@ const ResultsScreen = ({ onReset, analysisData }: ResultsScreenProps) => {
                 </div>
               </div>
 
-              {/* Analysis Insights from first version */}
               <div className="mt-6 p-4 rounded-lg" style={innerBoxStyle}>
                 <h4 className="text-white font-semibold mb-3">
                   Analysis Insights:
@@ -751,52 +795,18 @@ const ResultsScreen = ({ onReset, analysisData }: ResultsScreenProps) => {
               </div>
             </div>
 
-            {/* Assessment Info Card */}
-            <div
-              className="rounded-xl p-3 relative overflow-hidden"
-              style={{
-                backgroundColor: "rgba(255, 255, 255, 0.15)",
-                border: "1px solid rgba(255, 255, 255, 0.25)",
-                backdropFilter: "blur(12px)",
-                boxShadow:
-                  "0 8px 32px rgba(255, 255, 255, 0.15), 0 0 15px rgba(255, 255, 255, 0.05) inset",
-              }}
-            >
-              <div className="flex justify-between items-center text-center">
-                {/* Date */}
-                <div className="flex flex-col items-center space-y-1 px-2">
-                  <div className="p-2 rounded-full bg-blue-500/20 text-blue-300">
-                    <Clock className="h-5 w-5" />
-                  </div>
-                  <p className="text-gray-400 text-xs">Completed</p>
-                  <p className="text-white font-semibold">Just Now</p>
-                </div>
-
-                {/* Score */}
-                <div className="flex flex-col items-center space-y-1 px-2">
-                  <div className="p-2 rounded-full bg-green-500/20 text-green-300">
-                    <CheckCheck className="h-5 w-5" />
-                  </div>
-                  <p className="text-gray-400 text-xs">Score</p>
-                  <p className="text-white font-semibold">{trustScore}%</p>
-                </div>
-
-                {/* Status */}
-                <div className="flex flex-col items-center space-y-1 px-2">
-                  <div className="p-2 rounded-full bg-purple-500/20 text-purple-300">
-                    {isAuthentic ? (
-                      <Award className="h-5 w-5" />
-                    ) : (
-                      <AlertTriangle className="h-5 w-5" />
-                    )}
-                  </div>
-                  <p className="text-gray-400 text-xs">Status</p>
-                  <p className="text-white font-semibold">
-                    {isAuthentic ? "Verified" : "Unverified"}
-                  </p>
-                </div>
-              </div>
-            </div>
+            {/* VLayer Web Proof Component */}
+            {isAuthentic && (
+              <motion.div variants={itemVariants}>
+                <VLayerProofComponent
+                  userAddress={account}
+                  trustScore={trustScore}
+                  onProofGenerated={(proof) => {
+                    console.log("VLayer proof generated:", proof);
+                  }}
+                />
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </motion.div>

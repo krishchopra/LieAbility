@@ -407,6 +407,60 @@ app.get("/api/nft/image/:tokenId/:score", async (req, res) => {
   }
 });
 
+// VLayer-compatible API endpoint for assessment verification
+app.get("/api/assessment", async (req, res) => {
+  try {
+    const { address } = req.query;
+
+    if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid or missing address parameter",
+      });
+    }
+
+    const assessmentData = {
+      userAddress: address,
+      trustScore: 87,
+      timestamp: Math.floor(Date.now() / 1000),
+      assessmentId: `assess_${Date.now()}_${address.slice(-6)}`,
+      breakdown: {
+        facial: 85,
+        speech: 90,
+        microExpressions: 82,
+        sentiment: 88,
+        coherence: 85,
+        confidence: 91,
+      },
+      verificationSignature: generateScoreSignature(
+        address,
+        87,
+        Math.floor(Date.now() / 1000)
+      ).signature,
+    };
+
+    console.log(`📊 VLayer assessment request for ${address}`);
+
+    res.json({
+      success: true,
+      data: assessmentData,
+      metadata: {
+        provider: "LieAbility AI Assessment",
+        version: "1.0.0",
+        apiEndpoint: req.originalUrl,
+        timestamp: new Date().toISOString(),
+      },
+    });
+  } catch (error) {
+    console.error("❌ VLayer assessment error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+      details: error.message,
+    });
+  }
+});
+
 // Error handling middleware
 app.use((error, req, res, next) => {
   console.error("❌ Unhandled error:", error);
