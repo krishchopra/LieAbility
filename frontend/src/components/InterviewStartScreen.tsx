@@ -125,8 +125,8 @@ const InterviewStartScreen = ({ onStart, onTestCamera }: InterviewStartScreenPro
           }}
           variants={itemVariants}
         >
-          <div className="flex items-start gap-5">
-            <div className="bg-transparent flex-shrink-0 p-1">
+          <div className="flex items-center gap-5">
+            <div className="bg-transparent flex-shrink-0">
               <AlertTriangle className="h-8 w-8 text-yellow-400" />
             </div>
             <p className="text-white text-lg font-medium leading-relaxed">
@@ -192,7 +192,7 @@ const InterviewStartScreen = ({ onStart, onTestCamera }: InterviewStartScreenPro
           <NeumorphicButton
             onClick={onTestCamera}
             color="accent"
-            className="min-w-[200px] px-8 py-3 text-lg rounded-full bg-gradient-to-r from-[#274BA9] to-[#6E87C9] "
+            className="min-w-[200px] px-8 py-3 text-lg rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 "
           >
             <span className="text-white drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)]">Test Mic and Camera</span>
           </NeumorphicButton>

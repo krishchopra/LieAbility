@@ -137,13 +137,6 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div className="w-6"></div> {/* Empty space for balance */}
-          <Button
-            onClick={handleReset}
-            variant="outline"
-            className="bg-gray-900/50 border-gray-600 text-white hover:bg-gray-800/50"
-          >
-            Reset Interview
-          </Button>
         </div>
 
         {/* Question Card */}
@@ -335,6 +328,17 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
                 </p>
               </div>
             </Card>
+            
+            {/* Reset Interview Button - Moved from header to bottom of right panel */}
+            <div className="flex justify-end mt-4">
+              <Button
+                onClick={handleReset}
+                variant="outline"
+                className="bg-gray-900/50 border-gray-600 text-white hover:bg-gray-800 hover:border-gray-500 transition-colors duration-300"
+              >
+                Reset Interview
+              </Button>
+            </div>
           </div>
         </div>
       </div>
