@@ -54,9 +54,6 @@ contract LieAbilityNFTSimple is IERC165, IERC721, IERC721Metadata {
     // Mapping to track trust scores
     mapping(address => uint256) public trustScores;
     
-    // Mapping to prevent multiple mints per address
-    mapping(address => bool) public hasMinted;
-    
     // Constants
     uint256 public constant MIN_TRUST_SCORE = 75;
     uint256 public constant MAX_SUPPLY = 10000;
@@ -170,20 +167,18 @@ contract LieAbilityNFTSimple is IERC165, IERC721, IERC721Metadata {
     
     function mint() external {
         require(isEligible[msg.sender], "Not eligible to mint");
-        require(!hasMinted[msg.sender], "Already minted");
         require(_tokenIdCounter < MAX_SUPPLY, "Max supply reached");
         
         uint256 tokenId = _tokenIdCounter;
         _tokenIdCounter++;
         
-        hasMinted[msg.sender] = true;
         _safeMint(msg.sender, tokenId);
         
         emit LieAbilityNFTMinted(msg.sender, tokenId, trustScores[msg.sender]);
     }
     
-    function getEligibilityInfo(address user) external view returns (bool eligible, uint256 score, bool minted) {
-        return (isEligible[user], trustScores[user], hasMinted[user]);
+    function getEligibilityInfo(address user) external view returns (bool eligible, uint256 score) {
+        return (isEligible[user], trustScores[user]);
     }
     
     function totalSupply() external view returns (uint256) {

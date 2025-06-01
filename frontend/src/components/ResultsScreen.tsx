@@ -118,10 +118,6 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
       return { text: "Submit Assessment First", disabled: true };
     }
 
-    if (eligibilityInfo?.hasMinted) {
-      return { text: "NFT Already Minted", disabled: true };
-    }
-
     if (loading) {
       return { text: "Minting...", disabled: true };
     }
@@ -190,12 +186,6 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
                       ? "✅ Eligible for NFT"
                       : "❌ Not Eligible"}
                   </Badge>
-
-                  {eligibilityInfo.hasMinted && (
-                    <Badge className="text-sm px-3 py-1 bg-purple-500/20 text-purple-400 border-purple-500">
-                      🎉 NFT Already Minted
-                    </Badge>
-                  )}
                 </div>
               )}
             </div>

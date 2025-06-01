@@ -8,9 +8,8 @@ const CONTRACT_ABI = [
   "function ownerOf(uint256 tokenId) external view returns (address)",
   "function balanceOf(address owner) external view returns (uint256)",
   "function totalSupply() external view returns (uint256)",
-  "function getEligibilityInfo(address user) external view returns (bool eligible, uint256 score, bool minted)",
+  "function getEligibilityInfo(address user) external view returns (bool eligible, uint256 score)",
   "function isEligible(address user) external view returns (bool)",
-  "function hasMinted(address user) external view returns (bool)",
   "function grantEligibility(address[] users, uint256[] scores) external",
   "function name() external view returns (string)",
   "function symbol() external view returns (string)",
@@ -25,15 +24,13 @@ const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS;
 interface EligibilityInfo {
   eligible: boolean;
   score: number;
-  hasMinted: boolean;
 }
 
 // Type for the contract with our specific functions
 type LieAbilityContract = ethers.Contract & {
   mint(): Promise<ethers.ContractTransactionResponse>;
-  getEligibilityInfo(user: string): Promise<[boolean, bigint, boolean]>;
+  getEligibilityInfo(user: string): Promise<[boolean, bigint]>;
   isEligible(user: string): Promise<boolean>;
-  hasMinted(user: string): Promise<boolean>;
 };
 
 export function useNFTContract() {
@@ -71,13 +68,11 @@ export function useNFTContract() {
       if (!contractToUse) return;
 
       // Wrap in try-catch to handle ENS resolution errors on Hedera
-      const [eligible, score, hasMinted] =
-        await contractToUse.getEligibilityInfo(address);
+      const [eligible, score] = await contractToUse.getEligibilityInfo(address);
 
       setEligibilityInfo({
         eligible: eligible,
         score: Number(score),
-        hasMinted: hasMinted,
       });
     } catch (error: any) {
       console.error("Error checking eligibility:", error);
@@ -199,11 +194,6 @@ export function useNFTContract() {
       setError(
         "You are not eligible to mint. Please complete the assessment first."
       );
-      return false;
-    }
-
-    if (eligibilityInfo?.hasMinted) {
-      setError("You have already minted your NFT");
       return false;
     }
 
