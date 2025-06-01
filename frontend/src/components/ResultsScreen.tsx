@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useNFTContract } from "@/hooks/useNFTContract";
+import { toast } from "sonner";
 import AnimatedEye from "./AnimatedEye";
 import MovingGradientBackground from "./MovingGradientBackground";
 
@@ -10,8 +12,100 @@ interface ResultsScreenProps {
 }
 
 const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
-  const trustScore = 87;
-  const isAuthentic = trustScore > 75;
+  const trustScore = Math.floor(Math.random() * 26) + 75; // Random score 75-100%
+  const isAuthentic = trustScore >= 75;
+
+  const {
+    connected,
+    account,
+    eligibilityInfo,
+    loading,
+    error,
+    connectWallet,
+    submitAssessment,
+    mintNFT,
+    disconnectWallet,
+  } = useNFTContract();
+
+  const [assessmentSubmitted, setAssessmentSubmitted] = useState(false);
+  const [isSubmittingAssessment, setIsSubmittingAssessment] = useState(false);
+
+  // Auto-submit assessment when component mounts and user is connected and eligible
+  useEffect(() => {
+    if (connected && account && isAuthentic && !assessmentSubmitted) {
+      handleSubmitAssessment();
+    }
+  }, [connected, account, isAuthentic]);
+
+  const handleSubmitAssessment = async () => {
+    if (!connected) {
+      const success = await connectWallet();
+      if (!success) return;
+    }
+
+    setIsSubmittingAssessment(true);
+    try {
+      const success = await submitAssessment(trustScore);
+      if (success) {
+        setAssessmentSubmitted(true);
+        toast.success("Assessment submitted! You can now mint your NFT.");
+      }
+    } catch (error) {
+      console.error("Assessment submission failed:", error);
+    } finally {
+      setIsSubmittingAssessment(false);
+    }
+  };
+
+  const handleConnectWallet = async () => {
+    const success = await connectWallet();
+    if (success && isAuthentic) {
+      handleSubmitAssessment();
+    }
+  };
+
+  const handleMintNFT = async () => {
+    if (!connected) {
+      await handleConnectWallet();
+      return;
+    }
+
+    if (!eligibilityInfo?.eligible) {
+      toast.error("You need to submit your assessment first!");
+      return;
+    }
+
+    const success = await mintNFT();
+    if (success) {
+      toast.success("🎉 LieAbility NFT minted successfully!");
+    }
+  };
+
+  const getMintButtonState = () => {
+    if (!connected) {
+      return { text: "Connect Wallet to Mint NFT", disabled: false };
+    }
+
+    if (isSubmittingAssessment) {
+      return { text: "Submitting Assessment...", disabled: true };
+    }
+
+    if (!eligibilityInfo?.eligible && !assessmentSubmitted) {
+      return { text: "Submit Assessment First", disabled: true };
+    }
+
+    if (eligibilityInfo?.hasMinted) {
+      return { text: "NFT Already Minted", disabled: true };
+    }
+
+    if (loading) {
+      return { text: "Minting...", disabled: true };
+    }
+
+    return { text: "Mint LieAbility NFT", disabled: false };
+  };
+
+  const mintButtonState = getMintButtonState();
 
   return (
     <MovingGradientBackground variant="orange">
@@ -23,6 +117,22 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
             <h1 className="text-4xl font-bold text-white">
               Assessment Complete
             </h1>
+
+            {/* Connection Status */}
+            {connected && (
+              <div className="bg-green-500/20 border border-green-500 rounded-lg p-3">
+                <p className="text-green-400 text-sm">
+                  🔗 Wallet connected: {account?.slice(0, 6)}...
+                  {account?.slice(-4)}
+                </p>
+              </div>
+            )}
+
+            {error && (
+              <div className="bg-red-500/20 border border-red-500 rounded-lg p-3">
+                <p className="text-red-400 text-sm">{error}</p>
+              </div>
+            )}
           </div>
 
           {/* Trust Score */}
@@ -41,6 +151,29 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
               >
                 {isAuthentic ? "Likely Authentic" : "Authenticity Questionable"}
               </Badge>
+
+              {/* Eligibility Status */}
+              {connected && eligibilityInfo && (
+                <div className="mt-4 space-y-2">
+                  <Badge
+                    className={`text-sm px-3 py-1 ${
+                      eligibilityInfo.eligible
+                        ? "bg-blue-500/20 text-blue-400 border-blue-500"
+                        : "bg-gray-500/20 text-gray-400 border-gray-500"
+                    }`}
+                  >
+                    {eligibilityInfo.eligible
+                      ? "✅ Eligible for NFT"
+                      : "❌ Not Eligible"}
+                  </Badge>
+
+                  {eligibilityInfo.hasMinted && (
+                    <Badge className="text-sm px-3 py-1 bg-purple-500/20 text-purple-400 border-purple-500">
+                      🎉 NFT Already Minted
+                    </Badge>
+                  )}
+                </div>
+              )}
             </div>
           </Card>
 
@@ -97,10 +230,14 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
               {isAuthentic ? (
                 <div className="space-y-4">
                   <p className="text-gray-300">
-                    Your authenticity score qualifies for verification
+                    Your authenticity score qualifies for NFT minting!
                   </p>
-                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white">
-                    Mint LieAbility NFT
+                  <Button
+                    onClick={handleMintNFT}
+                    disabled={mintButtonState.disabled}
+                    className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white disabled:from-gray-500 disabled:to-gray-600"
+                  >
+                    {mintButtonState.text}
                   </Button>
                 </div>
               ) : (
@@ -120,27 +257,35 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
 
             <Card className="bg-gray-900/80 border-gray-700 backdrop-blur-sm p-6 text-center">
               <h4 className="text-white text-lg font-semibold mb-4">
-                Share Results
+                New Assessment
               </h4>
               <div className="space-y-4">
                 <p className="text-gray-300">
-                  Mint your authenticity badge as an NFT
+                  Ready to test your authenticity again? Start a fresh
+                  assessment to improve your score.
                 </p>
-                <div className="space-y-2">
-                  <Button
-                    variant="outline"
-                    className="w-full bg-gray-800/50 border-gray-600 text-white hover:text-white hover:bg-gray-700/50"
-                  >
-                    Mint NFT
-                  </Button>
-                  <Button
-                    onClick={onReset}
-                    variant="outline"
-                    className="w-full bg-gray-800/50 border-gray-600 text-white hover:text-white hover:bg-gray-700/50"
-                  >
-                    New Assessment
-                  </Button>
-                </div>
+
+                <Button
+                  onClick={onReset}
+                  className="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white"
+                >
+                  Start New Assessment
+                </Button>
+
+                {connected && (
+                  <div className="pt-2 border-t border-gray-700">
+                    <p className="text-gray-400 text-sm mb-3">
+                      Wallet Management
+                    </p>
+                    <Button
+                      onClick={disconnectWallet}
+                      variant="outline"
+                      className="w-full bg-gray-800/50 border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700/50"
+                    >
+                      Disconnect Wallet
+                    </Button>
+                  </div>
+                )}
               </div>
             </Card>
           </div>

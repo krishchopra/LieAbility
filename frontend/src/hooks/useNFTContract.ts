@@ -2,16 +2,18 @@ import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import { toast } from "sonner";
 
-// Contract ABI for the ERC-721 NFT contract
+// Contract ABI for the LieAbilityNFTSimple contract
 const CONTRACT_ABI = [
-  "function mintTo(address to) external",
+  "function mint() external",
   "function ownerOf(uint256 tokenId) external view returns (address)",
   "function balanceOf(address owner) external view returns (uint256)",
   "function totalSupply() external view returns (uint256)",
-  "function checkEligibility(address user) external view returns (bool eligible, uint256 score, bool hasMinted)",
+  "function getEligibilityInfo(address user) external view returns (bool eligible, uint256 score, bool minted)",
   "function isEligible(address user) external view returns (bool)",
   "function hasMinted(address user) external view returns (bool)",
-  "function grantEligibility(address user, uint256 score) external",
+  "function grantEligibility(address[] users, uint256[] scores) external",
+  "function name() external view returns (string)",
+  "function symbol() external view returns (string)",
 ];
 
 // Backend API URL
@@ -28,8 +30,8 @@ interface EligibilityInfo {
 
 // Type for the contract with our specific functions
 type LieAbilityContract = ethers.Contract & {
-  mintTo(to: string): Promise<ethers.ContractTransactionResponse>;
-  checkEligibility(user: string): Promise<[boolean, bigint, boolean]>;
+  mint(): Promise<ethers.ContractTransactionResponse>;
+  getEligibilityInfo(user: string): Promise<[boolean, bigint, boolean]>;
   isEligible(user: string): Promise<boolean>;
   hasMinted(user: string): Promise<boolean>;
 };
@@ -68,9 +70,8 @@ export function useNFTContract() {
       const contractToUse = contractInstance || contract;
       if (!contractToUse) return;
 
-      const [eligible, score, hasMinted] = await contractToUse.checkEligibility(
-        address
-      );
+      const [eligible, score, hasMinted] =
+        await contractToUse.getEligibilityInfo(address);
 
       setEligibilityInfo({
         eligible: eligible,
@@ -209,8 +210,8 @@ export function useNFTContract() {
       const signer = await provider.getSigner();
       const contractWithSigner = contract.connect(signer) as LieAbilityContract;
 
-      // Call mintTo function
-      const tx = await contractWithSigner.mintTo(account);
+      // Call mint function
+      const tx = await contractWithSigner.mint();
       console.log("Transaction sent:", tx.hash);
 
       toast.info("Transaction sent! Waiting for confirmation...");

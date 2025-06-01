@@ -13,6 +13,7 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
   const [showCameraTest, setShowCameraTest] = useState(false);
   const {
     videoRef,
+    stream,
     isStreaming,
     hasPermission,
     error: cameraError,
@@ -20,9 +21,42 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
     stopCamera,
   } = useCamera();
 
+  // Effect to ensure video element is connected to stream when showing camera test
+  useEffect(() => {
+    if (showCameraTest && isStreaming && stream && videoRef.current) {
+      console.log(
+        "🎥 [StartScreen] Connecting video element to existing stream"
+      );
+      videoRef.current.srcObject = stream;
+
+      // Ensure video plays
+      videoRef.current.play().catch((error) => {
+        console.warn("🎥 [StartScreen] Video autoplay failed:", error);
+      });
+    }
+  }, [showCameraTest, isStreaming, stream]);
+
   const handleTestCamera = async () => {
     setShowCameraTest(true);
-    await startCamera();
+
+    // If camera is already streaming, just ensure video connection
+    if (isStreaming && stream) {
+      console.log(
+        "🎥 [StartScreen] Camera already active, connecting to video element"
+      );
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        try {
+          await videoRef.current.play();
+        } catch (error) {
+          console.warn("🎥 [StartScreen] Video play failed:", error);
+        }
+      }
+    } else {
+      // Start camera if not already running
+      console.log("🎥 [StartScreen] Starting camera for test");
+      await startCamera();
+    }
   };
 
   const handleStartInterview = () => {
@@ -133,16 +167,29 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
 
                     <Button
                       onClick={() => {
-                        stopCamera();
+                        // Don't stop the camera - just hide the preview
+                        // The camera should keep running for the interview
                         setShowCameraTest(false);
                       }}
                       variant="outline"
                       className="border-gray-600 text-black-300 hover:text-white hover:bg-gray-800"
                     >
-                      Close Preview
+                      Hide Preview
                     </Button>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Camera Ready Status (when preview is hidden but camera is active) */}
+            {!showCameraTest && isStreaming && !cameraError && (
+              <div className="bg-green-900/30 border border-green-500 rounded-lg p-4">
+                <p className="text-green-400 font-semibold">
+                  ✓ Camera & Microphone Active
+                </p>
+                <p className="text-gray-300 text-sm">
+                  Camera is ready for the interview!
+                </p>
               </div>
             )}
           </Card>

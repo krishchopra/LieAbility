@@ -125,12 +125,6 @@ async function deployContract() {
       JSON.stringify(deploymentInfo, null, 2)
     );
 
-    // Also save to root for backwards compatibility
-    fs.writeFileSync(
-      path.join(__dirname, "..", "deployment.json"),
-      JSON.stringify(deploymentInfo, null, 2)
-    );
-
     console.log("💾 Deployment info saved to deployment.json");
 
     console.log("\n📋 Next Steps:");
