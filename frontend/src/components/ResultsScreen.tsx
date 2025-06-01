@@ -170,7 +170,7 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
 
   return (
     <MovingGradientBackground variant="dark">
-      {/* Add keyframe animations for the glowing button */}
+      {/* Add keyframe animations for the glowing button and circular progress */}
       <style jsx global>{`
         @keyframes pulse-glow {
           0% {
@@ -181,6 +181,20 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
           }
           100% {
             box-shadow: 0 0 5px 0 rgba(98, 132, 231, 0.4), 0 0 20px 0 rgba(98, 132, 231, 0.2);
+          }
+        }
+        @keyframes box-glow {
+          0% {
+            box-shadow: 0 0 10px 0 rgba(59, 130, 246, 0.3), 0 0 20px 0 rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.2);
+          }
+          50% {
+            box-shadow: 0 0 20px 5px rgba(59, 130, 246, 0.5), 0 0 40px 8px rgba(59, 130, 246, 0.3);
+            border-color: rgba(96, 165, 250, 0.3);
+          }
+          100% {
+            box-shadow: 0 0 10px 0 rgba(59, 130, 246, 0.3), 0 0 20px 0 rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.1);
           }
         }
         @keyframes shimmer {
@@ -213,6 +227,41 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
         }
         .mint-button-glow {
           animation: pulse-glow 2s infinite;
+        }
+        @keyframes score-fill {
+          0% {
+            stroke-dasharray: 0 calc(2 * 3.14159 * 44);
+          }
+          100% {
+            stroke-dasharray: calc((var(--score-percent) / 100) * 2 * 3.14159 * 44) calc(2 * 3.14159 * 44);
+          }
+        }
+        .score-ring {
+          transform: rotate(-90deg);
+          transform-origin: 50% 50%;
+          transition: all 1.5s ease;
+        }
+        .score-ring-bg {
+          opacity: 0.2;
+        }
+        .score-ring-fill {
+          stroke-dasharray: 0 calc(2 * 3.14159 * 44);
+          animation: score-fill 1.5s ease forwards;
+        }
+        .score-ring-track {
+          filter: drop-shadow(0px 0px 3px rgba(104, 211, 145, 0.5));
+        }
+        .trust-score-inner {
+          background: radial-gradient(circle at center, rgba(23, 37, 84, 0.7) 0%, rgba(30, 58, 138, 0.8) 100%);
+        }
+        .trust-score-glow {
+          box-shadow: 0 0 15px 0 rgba(59, 130, 246, 0.3);
+        }
+        .mint-box-glow {
+          animation: box-glow 3s infinite;
+          backdrop-filter: blur(15px);
+          border: 1px solid rgba(96, 165, 250, 0.5);
+          background: linear-gradient(135deg, rgba(30, 58, 138, 0.6), rgba(59, 130, 246, 0.15));
         }
       `}</style>
 
@@ -301,41 +350,94 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
               <h3 className="text-white text-xl font-semibold mb-4 text-center">Trust Score</h3>
               
               <div className="flex flex-col items-center justify-center">
-                <div className="relative w-48 h-48 mb-6">
-                  {/* Circular background */}
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-900/20 to-indigo-900/30 backdrop-blur-sm border border-white/10"></div>
+                {/* Enhanced Trust Score with Fitness Ring */}
+                <div className="relative w-56 h-56 mb-6 trust-score-glow rounded-full">
+                  {/* Animated Circular Progress */}
+                  <svg className="w-full h-full absolute top-0 left-0" viewBox="0 0 100 100">
+                    {/* Colored gradient background ring */}
+                    <defs>
+                      <linearGradient id="ringGradient" gradientTransform="rotate(90)">
+                        <stop offset="0%" stopColor="#60A5FA" />
+                        <stop offset="100%" stopColor="#2563EB" />
+                      </linearGradient>
+                      <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="2" result="blur" />
+                        <feMerge>
+                          <feMergeNode in="blur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+                    </defs>
+                    
+                    {/* Background ring */}
+                    <circle 
+                      className="score-ring-bg" 
+                      cx="50" 
+                      cy="50" 
+                      r="44" 
+                      fill="none" 
+                      stroke="url(#ringGradient)" 
+                      strokeWidth="6"
+                    />
+                    
+                    {/* Progress ring with animation */}
+                    <circle 
+                      className="score-ring score-ring-fill score-ring-track" 
+                      style={{ '--score-percent': trustScore } as React.CSSProperties}
+                      cx="50" 
+                      cy="50" 
+                      r="44" 
+                      fill="none" 
+                      stroke="url(#ringGradient)" 
+                      strokeWidth="6" 
+                      strokeLinecap="round"
+                      filter="url(#glow)"
+                    />
+                    
+                    {/* Small circles marking progress intervals */}
+                    {[0, 25, 50, 75].map((mark) => (
+                      <circle
+                        key={mark}
+                        cx={50 + 44 * Math.cos(2 * Math.PI * (mark / 100) - Math.PI/2)}
+                        cy={50 + 44 * Math.sin(2 * Math.PI * (mark / 100) - Math.PI/2)}
+                        r="1.5"
+                        fill="#fff"
+                        opacity="0.7"
+                      />
+                    ))}
+                  </svg>
                   
-                  {/* Score display */}
-                  <div className="absolute inset-0 flex items-center justify-center flex-col">
-                    <div className="text-6xl font-bold text-white">
+                  {/* Inner circle with score */}
+                  <div className="absolute inset-[12px] rounded-full trust-score-inner border border-blue-500/30 backdrop-blur-sm flex items-center justify-center flex-col">
+                    <div className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-100 via-blue-100 to-blue-200">
                       {trustScore}%
                     </div>
-                    <div className="text-blue-300 text-sm mt-1">
+                    <div className="text-blue-300 text-sm mt-1 font-medium">
                       {isAuthentic ? "Likely Authentic" : "Needs Improvement"}
                     </div>
-                  </div>
-                  
-                  {/* Status indicator */}
-                  <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2">
-                    <Badge
-                      className={`px-3 py-1 text-xs ${
-                        isAuthentic
-                          ? "bg-green-500/20 text-green-300 border-green-500/50"
-                          : "bg-red-500/20 text-red-300 border-red-500/50"
-                      }`}
-                    >
-                      {isAuthentic ? (
-                        <div className="flex items-center space-x-1">
-                          <CheckCircle className="h-3 w-3" />
-                          <span>Verified</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center space-x-1">
-                          <XCircle className="h-3 w-3" />
-                          <span>Unverified</span>
-                        </div>
-                      )}
-                    </Badge>
+                    
+                    {/* Status indicator moved inside the circle */}
+                    <div className="mt-3">
+                      <Badge
+                        className={`px-3 py-1 text-xs ${
+                          isAuthentic
+                            ? "bg-green-500/20 text-green-300 border-green-500/30"
+                            : "bg-red-500/20 text-red-300 border-red-500/30"
+                        }`}
+                      >
+                        {isAuthentic ? (
+                          <div className="flex items-center space-x-1">
+                            <CheckCircle className="h-3 w-3" />
+                            <span>Verified</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-1">
+                            <XCircle className="h-3 w-3" />
+                            <span>Unverified</span>
+                          </div>
+                        )}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
                 
@@ -359,7 +461,10 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
             </div>
           
             {/* Action Card */}
-            <div className="rounded-xl p-5 relative overflow-hidden" style={boxStyle}>
+            <div 
+              className={`rounded-xl p-5 relative overflow-hidden ${isAuthentic ? 'mint-box-glow' : ''}`} 
+              style={isAuthentic ? undefined : boxStyle}
+            >
               <h3 className="text-white text-xl font-semibold mb-4">
                 {isAuthentic ? "Mint Your Verification NFT" : "Try Again"}
               </h3>
