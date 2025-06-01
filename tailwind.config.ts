@@ -190,6 +190,7 @@ export default {
 				'float-particle': 'float-particle 15s ease-in-out infinite',
 				'light-beam': 'light-beam 10s ease-in-out infinite',
 				'floating-line': 'floating-line 12s ease-in-out infinite',
+				'spin-slow-reverse': 'spin 6s linear infinite reverse',
 			},
 			animationDelay: {
 				'1000': '1s',

@@ -251,7 +251,7 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
                   <p className="text-gray-400 text-sm mb-2">
                     Recording starts in:
                   </p>
-                  <div className="text-6xl font-bold text-cyan-400">
+                  <div className="text-6xl font-bold text-[#AABAE4]">
                     {countdown}
                   </div>
                 </div>
@@ -281,7 +281,7 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
                     disabled={timeLeft > 50} // Minimum 10 seconds
                   >
                     {timeLeft > 50
-                      ? `Wait ${50 - timeLeft + 1}s`
+                      ? `Wait ${-(50 - timeLeft + 1)}s`
                       : "Next Question →"}
                   </Button>
                   <p className="text-gray-400 text-xs text-center">
