@@ -97,14 +97,17 @@ const InterviewStartScreen = ({ onStart, onTestCamera }: InterviewStartScreenPro
       >
         {/* Logo */}
         <motion.div 
-          className="flex flex-col items-center space-y-5 mb-6"
+          className="flex flex-col items-center space-y-3 mb-6"
           variants={itemVariants}
         >
-          <AnimatedEye size={130} />
+          <AnimatedEye size={90} />
           <div className="text-center">
-            <h1 className="text-6xl font-extrabold tracking-tight">
-              <span className="bg-gradient-to-r from-white via-white to-gray-400 bg-clip-text text-transparent drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
-                LieAbility
+            <h1 className="text-5xl font-extrabold tracking-tight flex justify-center">
+              <span className="bg-gradient-to-r from-white via-white to-white bg-clip-text text-transparent drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
+                Lie
+              </span>
+              <span className="text-[#8CA1D6] drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
+                Ability
               </span>
             </h1>
             <p className="text-gray-400 mt-2 text-lg font-medium">Authenticity-based behavioral assessment</p>
