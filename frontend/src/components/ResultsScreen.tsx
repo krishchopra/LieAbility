@@ -12,7 +12,8 @@ interface ResultsScreenProps {
 }
 
 const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
-  const trustScore = Math.floor(Math.random() * 26) + 75; // Random score 75-100%
+  // Generate score once and keep it consistent
+  const [trustScore] = useState(() => Math.floor(Math.random() * 26) + 75);
   const isAuthentic = trustScore >= 75;
 
   const {
@@ -36,6 +37,29 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
       handleSubmitAssessment();
     }
   }, [connected, account, isAuthentic]);
+
+  // Also try to submit when eligibility info is loaded and user is not eligible
+  useEffect(() => {
+    if (
+      connected &&
+      account &&
+      isAuthentic &&
+      eligibilityInfo &&
+      !eligibilityInfo.eligible &&
+      !assessmentSubmitted &&
+      !isSubmittingAssessment
+    ) {
+      console.log("User not eligible, attempting to submit assessment...");
+      handleSubmitAssessment();
+    }
+  }, [
+    connected,
+    account,
+    isAuthentic,
+    eligibilityInfo,
+    assessmentSubmitted,
+    isSubmittingAssessment,
+  ]);
 
   const handleSubmitAssessment = async () => {
     if (!connected) {
@@ -232,6 +256,20 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
                   <p className="text-gray-300">
                     Your authenticity score qualifies for NFT minting!
                   </p>
+
+                  {/* Show submit button if assessment not submitted and user is connected but not eligible */}
+                  {connected && !eligibilityInfo?.eligible && (
+                    <Button
+                      onClick={handleSubmitAssessment}
+                      disabled={isSubmittingAssessment}
+                      className="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white mb-2"
+                    >
+                      {isSubmittingAssessment
+                        ? "Submitting Assessment..."
+                        : "Submit Assessment for NFT Eligibility"}
+                    </Button>
+                  )}
+
                   <Button
                     onClick={handleMintNFT}
                     disabled={mintButtonState.disabled}

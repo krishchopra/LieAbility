@@ -6,6 +6,7 @@ require("dotenv").config();
 const {
   Client,
   ContractExecuteTransaction,
+  ContractFunctionParameters,
   AccountId,
   PrivateKey,
   ContractId,
@@ -58,22 +59,16 @@ function generateScoreSignature(userAddress, score, timestamp) {
 
   // Create message hash (same format as frontend was using)
   const message = `LieAbility Assessment - Address: ${userAddress}, Score: ${score}, Timestamp: ${timestamp}`;
-  const messageHash = crypto.createHash("sha256").update(message).digest();
 
-  // Sign with server's private key
-  const privateKey = Buffer.from(
-    process.env.ASSESSMENT_PRIVATE_KEY.replace("0x", ""),
-    "hex"
-  );
-  const signature = crypto.sign("sha256", messageHash, {
-    key: privateKey,
-    format: "der",
-    type: "sec1",
-  });
+  // Use HMAC instead of complex crypto signing to avoid decoder issues
+  const signature = crypto
+    .createHmac("sha256", process.env.ASSESSMENT_PRIVATE_KEY)
+    .update(message)
+    .digest("hex");
 
   return {
     message,
-    signature: "0x" + signature.toString("hex"),
+    signature: "0x" + signature,
     timestamp,
   };
 }
@@ -136,10 +131,15 @@ app.post("/api/submit-assessment", async (req, res) => {
         throw new Error("Hedera client not initialized");
       }
 
+      // Properly encode function parameters for Hedera
+      const functionParameters = new ContractFunctionParameters()
+        .addAddressArray([userAddress])
+        .addUint256Array([trustScore]);
+
       const transaction = new ContractExecuteTransaction()
         .setContractId(contractId)
         .setGas(100000)
-        .setFunction("grantEligibility", [userAddress, trustScore]);
+        .setFunction("grantEligibility", functionParameters);
 
       const txResponse = await transaction.execute(client);
       const receipt = await txResponse.getReceipt(client);
