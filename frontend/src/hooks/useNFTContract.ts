@@ -70,6 +70,7 @@ export function useNFTContract() {
       const contractToUse = contractInstance || contract;
       if (!contractToUse) return;
 
+      // Wrap in try-catch to handle ENS resolution errors on Hedera
       const [eligible, score, hasMinted] =
         await contractToUse.getEligibilityInfo(address);
 
@@ -78,8 +79,13 @@ export function useNFTContract() {
         score: Number(score),
         hasMinted: hasMinted,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error checking eligibility:", error);
+
+      // Don't show ENS errors to user - they're harmless
+      if (!error.message?.includes("ENS")) {
+        setError(`Failed to check eligibility: ${error.message}`);
+      }
       setEligibilityInfo(null);
     }
   };

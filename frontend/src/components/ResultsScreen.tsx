@@ -274,7 +274,7 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
 
                 {connected && (
                   <div className="pt-2 border-t border-gray-700">
-                    <p className="text-gray-400 text-sm mb-3">
+                    <p className="text-gray-400 font-bold text-sm mb-3">
                       Wallet Management
                     </p>
                     <Button
