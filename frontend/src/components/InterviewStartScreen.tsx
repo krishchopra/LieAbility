@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import AnimatedEye from "./AnimatedEye";
 import MovingGradientBackground from "./MovingGradientBackground";
 import { useCamera } from "@/contexts/CameraContext";
-import { AlertTriangle, Smile, Eye as EyeIcon, MessageSquare, Check } from "lucide-react";
+import { AlertTriangle, Smile, Eye as EyeIcon, MessageSquare, Check, Camera, CheckCircle2, XCircle, Volume2, LampDesk, Wifi, Clock, Timer, ListChecks } from "lucide-react";
 import { motion } from "framer-motion";
 
 // Neumorphic button component
@@ -41,24 +41,29 @@ const NeumorphicButton = ({
 
 interface InterviewStartScreenProps {
   onStart: () => void;
-  onTestCamera: () => void;
 }
 
-const InterviewStartScreen = ({ onStart, onTestCamera }: InterviewStartScreenProps) => {
-  const { hasPermission, error: cameraError } = useCamera();
+const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
+  const { videoRef, stream, isStreaming, hasPermission, error: cameraError, startCamera } = useCamera();
 
-  // Common box styling
+  // Start camera when component mounts
+  useEffect(() => {
+    startCamera();
+  }, [startCamera]);
+
+  // Common box styling - updated for glassmorphic effect
   const boxStyle = {
-    backgroundColor: 'rgba(255, 255, 255, 0.85)', // #FFFFFF at 10% opacity
-    border: '1px solid rgba(255, 255, 255, 0.5)', // White stroke at 50% opacity
-    backdropFilter: 'blur(24px)', // 24px background blur
-    boxShadow: '0 8px 16px rgba(62, 85, 145, 0.5)', // #3E5591 drop shadow at 50% opacity
+    backgroundColor: 'rgba(255, 255, 255, 0.15)', // More transparent
+    border: '1px solid rgba(255, 255, 255, 0.2)', // More subtle border
+    backdropFilter: 'blur(12px)', // Slightly reduced blur for better transparency
+    boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15)', // Softer shadow for glass effect
   };
 
-  // Inner box styling for "What will be measured" items
+  // Inner box styling for "What will be measured" items - updated for glassmorphic effect
   const innerBoxStyle = {
-    backgroundColor: 'rgba(211, 249, 214, 0.1)', // #D3F9D6 at 10% opacity
-    backdropFilter: 'blur(24px)', // 24px background blur
+    backgroundColor: 'rgba(255, 255, 255, 0.1)', // Very transparent background
+    backdropFilter: 'blur(8px)', // Lighter blur
+    border: '1px solid rgba(255, 255, 255, 0.18)', // Subtle border
   };
 
   // Animation variants
@@ -89,114 +94,218 @@ const InterviewStartScreen = ({ onStart, onTestCamera }: InterviewStartScreenPro
 
   return (
     <MovingGradientBackground variant="dark">
+      {/* Additional corner gradient */}
+      <div
+        className="absolute top-0 right-0 w-[40vw] h-[40vh] pointer-events-none z-0"
+        style={{
+          background: 'radial-gradient(circle, rgba(111, 63, 251, 0.4) 0%, rgba(70, 41, 173, 0.2) 50%, rgba(0, 0, 0, 0) 80%)',
+          borderRadius: '0 0 0 100%',
+        }}
+      />
+      
+      {/* Header Bar */}
+      <div className="fixed top-0 left-0 right-0 z-20 px-4 py-3" style={{
+        backgroundColor: 'rgba(10, 10, 30, 0.3)',
+        backdropFilter: 'blur(8px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+      }}>
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          {/* Logo and company name integrated into header */}
+          <div className="flex items-center space-x-2">
+            <AnimatedEye size={30} />
+            <h1 className="text-xl font-bold tracking-tight flex">
+              <span className="bg-gradient-to-r from-white via-white to-white bg-clip-text text-transparent drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]">
+                Lie
+              </span>
+              <span className="text-[#8CA1D6] drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]">
+                Ability
+              </span>
+            </h1>
+          </div>
+          
+          {/* Navigation Links */}
+          <nav className="flex space-x-8">
+            <a href="#" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">How it Works</a>
+            <a href="#" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">About</a>
+            <a href="#" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Web3 Integration</a>
+          </nav>
+          
+          {/* Right side - Login button */}
+          <div className="flex justify-end">
+            <button className="text-sm text-blue-400 hover:text-blue-300 transition-colors font-medium">
+              Login
+            </button>
+          </div>
+        </div>
+      </div>
+      
       <motion.div 
-        className="min-h-screen flex flex-col items-center justify-center p-2 md:p-4 space-y-8 max-w-5xl mx-auto w-[95%]"
+        className="min-h-screen flex flex-col items-center justify-center p-1 md:p-2 space-y-6 max-w-7xl mx-auto w-[98%]"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
       >
-        {/* Logo */}
-        <motion.div 
-          className="flex flex-col items-center space-y-3 mb-6"
-          variants={itemVariants}
-        >
-          <AnimatedEye size={90} />
-          <div className="text-center">
-            <h1 className="text-5xl font-extrabold tracking-tight flex justify-center">
-              <span className="bg-gradient-to-r from-white via-white to-white bg-clip-text text-transparent drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
-                Lie
-              </span>
-              <span className="text-[#8CA1D6] drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
-                Ability
-              </span>
-            </h1>
-            <p className="text-gray-400 mt-2 text-lg font-medium">Authenticity-based behavioral assessment</p>
-          </div>
-        </motion.div>
+        {/* Empty space to account for header bar */}
+        <div className="h-16"></div>
 
-        {/* Warning Card */}
-        <motion.div 
-          className="w-full rounded-xl p-7 relative overflow-hidden"
-          style={{
-            backgroundColor: 'rgba(255, 205, 5, 0.2)', // #FFCD05 at 20% opacity
-            border: '1px solid rgba(255, 255, 255, 0.5)', // White stroke at 50% opacity
-            backdropFilter: 'blur(24px)', // 24px background blur
-            boxShadow: '0 8px 16px rgba(62, 85, 145, 0.5)', // #3E5591 drop shadow at 50% opacity
-          }}
+        {/* Header with Title and Start Button */}
+        <motion.div
+          className="w-full flex flex-col md:flex-row justify-between items-center mb-3 gap-4"
           variants={itemVariants}
         >
-          <div className="flex items-center gap-5">
-            <div className="bg-transparent flex-shrink-0">
-              <AlertTriangle className="h-8 w-8 text-yellow-400" />
-            </div>
-            <p className="text-white text-lg font-medium leading-relaxed">
-              You won't be able to pause or redo this once started.
-            </p>
-          </div>
-        </motion.div>
+          <h2 className="text-4xl md:text-5xl font-bold text-white text-left">
+            Recruiter Screen with ETHGlobal
+          </h2>
 
-        {/* What Will Be Measured Card */}
-        <motion.div 
-          className="w-full rounded-xl p-7 relative overflow-hidden"
-          style={boxStyle}
-          variants={itemVariants}
-        >
-          <h3 className="text-black text-xl font-semibold mb-6 text-center">
-            What will be measured:
-          </h3>
-          
-          <div className="space-y-3 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
-            <motion.div 
-              className="p-4 rounded-xl flex items-center gap-4 group transition-all duration-300 hover:scale-[1.02]" 
-              style={innerBoxStyle}
-              whileHover={{ backgroundColor: 'rgba(211, 249, 214, 0.15)' }}
-            >
-              <Smile className={iconStyle} />
-              <span className="text-black font-medium">Emotion analysis</span>
-            </motion.div>
-            
-            <motion.div 
-              className="p-4 rounded-xl flex items-center gap-4 group transition-all duration-300 hover:scale-[1.02]" 
-              style={innerBoxStyle}
-              whileHover={{ backgroundColor: 'rgba(211, 249, 214, 0.15)' }}
-            >
-              <EyeIcon className={iconStyle} />
-              <span className="text-black font-medium">Facial cues</span>
-            </motion.div>
-            
-            <motion.div 
-              className="p-4 rounded-xl flex items-center gap-4 group transition-all duration-300 hover:scale-[1.02]" 
-              style={innerBoxStyle}
-              whileHover={{ backgroundColor: 'rgba(211, 249, 214, 0.15)' }}
-            >
-              <MessageSquare className={iconStyle} />
-              <span className="text-black font-medium">Speech patterns</span>
-            </motion.div>
-            
-            <motion.div 
-              className="p-4 rounded-xl flex items-center gap-4 group transition-all duration-300 hover:scale-[1.02]" 
-              style={innerBoxStyle}
-              whileHover={{ backgroundColor: 'rgba(211, 249, 214, 0.15)' }}
-            >
-              <Check className={iconStyle} />
-              <span className="text-black font-medium">Truthfulness indicators</span>
-            </motion.div>
-          </div>
-        </motion.div>
-
-        {/* Begin Button */}
-        <motion.div 
-          className="mt-4"
-          variants={itemVariants}
-        >
           <NeumorphicButton
-            onClick={onTestCamera}
+            onClick={onStart}
             color="accent"
-            className="min-w-[200px] px-8 py-3 text-lg rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 "
+            className="min-w-[180px] px-6 py-3 text-lg rounded-full bg-gradient-to-r from-blue-600 to-cyan-500"
+            disabled={!isStreaming || !!cameraError}
           >
-            <span className="text-white drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)]">Test Mic and Camera</span>
+            <span className="text-white drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)]">
+              {!isStreaming || cameraError ? "Camera not ready" : "Start Interview"}
+            </span>
           </NeumorphicButton>
         </motion.div>
+
+        {/* Main two-column layout */}
+        <div className="w-full flex flex-col lg:flex-row gap-6">
+          {/* Left Column - Camera Preview */}
+          <motion.div
+            className="w-full lg:w-1/2"
+            variants={itemVariants}
+          >
+            <div className="rounded-xl overflow-hidden h-full min-h-[300px] relative" style={boxStyle}>
+              {/* Camera Error State */}
+              {cameraError && (
+                <div className="absolute inset-0 flex items-center justify-center flex-col p-6 text-center bg-black/30 backdrop-blur-sm">
+                  <div className="w-16 h-16 bg-red-600/50 rounded-full flex items-center justify-center mb-4">
+                    <XCircle className="h-10 w-10 text-white" />
+                  </div>
+                  <h3 className="text-white text-xl font-bold mb-2">Camera Error</h3>
+                  <p className="text-gray-300 mb-4">{cameraError}</p>
+                  <NeumorphicButton onClick={startCamera} color="blue">
+                    Try Again
+                  </NeumorphicButton>
+                </div>
+              )}
+
+              {/* Camera Loading State */}
+              {!cameraError && !isStreaming && (
+                <div className="absolute inset-0 flex items-center justify-center flex-col p-6 text-center bg-black/30 backdrop-blur-sm">
+                  <div className="w-16 h-16 bg-blue-600/50 rounded-full flex items-center justify-center mb-4 animate-pulse">
+                    <Camera className="h-10 w-10 text-white" />
+                  </div>
+                  <h3 className="text-white text-xl font-bold mb-2">Initializing Camera</h3>
+                  <p className="text-gray-300">Please allow camera access when prompted</p>
+                </div>
+              )}
+
+              {/* Camera Preview */}
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className="w-full h-full object-cover min-h-[300px] md:min-h-[400px]"
+                style={{ transform: "scaleX(-1)" }}
+              />
+
+              {/* Camera Ready Indicator */}
+              {isStreaming && !cameraError && (
+                <div className="absolute bottom-4 right-4 px-4 py-2 bg-green-600/80 backdrop-blur-sm rounded-full flex items-center space-x-2">
+                  <CheckCircle2 className="h-5 w-5 text-white" />
+                  <span className="text-white text-sm font-medium">Camera Ready</span>
+                </div>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Right Column - Information Boxes */}
+          <motion.div
+            className="w-full lg:w-1/2 flex flex-col gap-4"
+            variants={itemVariants}
+          >
+            {/* Interview Info Card */}
+            <motion.div 
+              className="w-full rounded-xl p-3 relative overflow-hidden"
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.15)', 
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                backdropFilter: 'blur(12px)',
+                boxShadow: '0 8px 32px rgba(255, 255, 255, 0.15), 0 0 15px rgba(255, 255, 255, 0.05) inset',
+              }}
+              variants={itemVariants}
+            >
+              <div className="flex justify-between items-center text-center">
+                {/* Due By */}
+                <div className="flex flex-col items-center space-y-1 px-2">
+                  <div className="p-2 rounded-full bg-emerald-500/20 text-emerald-300">
+                    <Clock className="h-5 w-5" />
+                  </div>
+                  <p className="text-gray-400 text-xs">Due by</p>
+                  <p className="text-white font-semibold">Nov 19, 7pm</p>
+                </div>
+
+                {/* Duration */}
+                <div className="flex flex-col items-center space-y-1 px-2">
+                  <div className="p-2 rounded-full bg-orange-500/20 text-orange-300">
+                    <Timer className="h-5 w-5" />
+                  </div>
+                  <p className="text-gray-400 text-xs">Duration</p>
+                  <p className="text-white font-semibold">15 Mins</p>
+                </div>
+
+                {/* Number of Questions */}
+                <div className="flex flex-col items-center space-y-1 px-2">
+                  <div className="p-2 rounded-full bg-violet-500/20 text-violet-300">
+                    <ListChecks className="h-5 w-5" />
+                  </div>
+                  <p className="text-gray-400 text-xs">Questions</p>
+                  <p className="text-white font-semibold">5</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* What Will Be Measured Card - Changed to "Before you begin" */}
+            <motion.div 
+              className="w-full rounded-xl p-5 relative overflow-hidden"
+              style={boxStyle}
+              variants={itemVariants}
+            >
+              <h3 className="text-white text-xl font-semibold mb-4">
+                Before you begin:
+              </h3>
+              
+              <div className="space-y-2">
+                <motion.div 
+                  className="p-3 rounded-xl flex items-center gap-3 group transition-all duration-300 hover:scale-[1.02]" 
+                  style={innerBoxStyle}
+                  whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
+                >
+                  <span className="text-white font-medium">🔇 Quiet Zone: Make sure you're in a quiet environment with minimal background noise.</span>
+                </motion.div>
+                
+                <motion.div 
+                  className="p-3 rounded-xl flex items-center gap-3 group transition-all duration-300 hover:scale-[1.02]" 
+                  style={innerBoxStyle}
+                  whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
+                >
+                  <span className="text-white font-medium">💡 Good Lighting: Sit facing a light source to keep your face clearly visible.</span>
+                </motion.div>
+                
+                <motion.div 
+                  className="p-3 rounded-xl flex items-center gap-3 group transition-all duration-300 hover:scale-[1.02]" 
+                  style={innerBoxStyle}
+                  whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
+                >
+                  <span className="text-white font-medium">🔌 Stable Connection: A strong internet connection helps avoid disruptions.</span>
+                </motion.div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
       </motion.div>
     </MovingGradientBackground>
   );

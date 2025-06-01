@@ -6,6 +6,8 @@ import { useNFTContract } from "@/hooks/useNFTContract";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import MovingGradientBackground from "./MovingGradientBackground";
+import AnimatedEye from "./AnimatedEye";
+import { CheckCircle, XCircle, Award, CheckCheck, AlertTriangle, Clock } from "lucide-react";
 
 interface ResultsScreenProps {
   onReset: () => void;
@@ -55,12 +57,19 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
     }
   };
 
-  // Common box styling
+  // Common box styling - updated to match InterviewStartScreen
   const boxStyle = {
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    border: '1px solid rgba(255, 255, 255, 0.5)',
-    backdropFilter: 'blur(24px)',
-    boxShadow: '0 8px 16px rgba(62, 85, 145, 0.5)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    backdropFilter: 'blur(12px)',
+    boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15)',
+  };
+
+  // Inner box styling for detailed breakdown
+  const innerBoxStyle = {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backdropFilter: 'blur(8px)',
+    border: '1px solid rgba(255, 255, 255, 0.18)',
   };
 
   // Auto-submit assessment when component mounts and user is connected and eligible
@@ -161,203 +170,358 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
 
   return (
     <MovingGradientBackground variant="dark">
+      {/* Add keyframe animations for the glowing button */}
+      <style jsx global>{`
+        @keyframes pulse-glow {
+          0% {
+            box-shadow: 0 0 5px 0 rgba(98, 132, 231, 0.4), 0 0 20px 0 rgba(98, 132, 231, 0.2);
+          }
+          50% {
+            box-shadow: 0 0 15px 5px rgba(98, 132, 231, 0.6), 0 0 30px 15px rgba(98, 132, 231, 0.3);
+          }
+          100% {
+            box-shadow: 0 0 5px 0 rgba(98, 132, 231, 0.4), 0 0 20px 0 rgba(98, 132, 231, 0.2);
+          }
+        }
+        @keyframes shimmer {
+          0% {
+            background-position: -100% 0;
+          }
+          100% {
+            background-position: 200% 0;
+          }
+        }
+        .nft-button-shine {
+          position: relative;
+          overflow: hidden;
+        }
+        .nft-button-shine::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(
+            90deg, 
+            transparent, 
+            rgba(255, 255, 255, 0.2), 
+            transparent
+          );
+          background-size: 200% 100%;
+          animation: shimmer 2s infinite;
+        }
+        .mint-button-glow {
+          animation: pulse-glow 2s infinite;
+        }
+      `}</style>
+
+      {/* Additional corner gradient */}
+      <div
+        className="absolute top-0 right-0 w-[40vw] h-[40vh] pointer-events-none z-0"
+        style={{
+          background: 'radial-gradient(circle, rgba(111, 63, 251, 0.4) 0%, rgba(70, 41, 173, 0.2) 50%, rgba(0, 0, 0, 0) 80%)',
+          borderRadius: '0 0 0 100%',
+        }}
+      />
+      
+      {/* Header Bar */}
+      <div className="fixed top-0 left-0 right-0 z-20 px-4 py-3" style={{
+        backgroundColor: 'rgba(10, 10, 30, 0.3)',
+        backdropFilter: 'blur(8px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+      }}>
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          {/* Logo and company name integrated into header */}
+          <div className="flex items-center space-x-2">
+            <AnimatedEye size={30} />
+            <h1 className="text-xl font-bold tracking-tight flex">
+              <span className="bg-gradient-to-r from-white via-white to-white bg-clip-text text-transparent drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]">
+                Lie
+              </span>
+              <span className="text-[#8CA1D6] drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]">
+                Ability
+              </span>
+            </h1>
+          </div>
+          
+          {/* Right side - Account display if connected */}
+          <div className="flex justify-end">
+            {connected ? (
+              <div className="flex items-center space-x-2 text-sm">
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <span className="text-gray-300">
+                  {account?.slice(0, 6)}...{account?.slice(-4)}
+                </span>
+              </div>
+            ) : (
+              <button className="text-sm text-blue-400 hover:text-blue-300 transition-colors font-medium" onClick={handleConnectWallet}>
+                Connect Wallet
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+      
       <motion.div 
-        className="min-h-screen p-4 max-w-4xl mx-auto w-[95%]"
+        className="min-h-screen flex flex-col items-center p-1 md:p-2 space-y-6 max-w-7xl mx-auto w-[98%]"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
       >
-        <div className="space-y-6">
-          {/* Header */}
-          <motion.div className="text-center mb-8 mt-12" variants={itemVariants}>
-            <h1 className="text-6xl font-extrabold tracking-tight">
-              <span className="bg-gradient-to-r from-white via-white to-gray-400 bg-clip-text text-transparent drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
-                Assessment Complete
-              </span>
-            </h1>
+        {/* Empty space to account for header bar */}
+        <div className="h-16"></div>
 
-            {/* Connection Status */}
-            {connected && (
-              <div className="bg-green-500/20 border border-green-500 rounded-lg p-3 mt-4 backdrop-blur-sm">
-                <p className="text-green-400 text-sm">
-                  🔗 Wallet connected: {account?.slice(0, 6)}...
-                  {account?.slice(-4)}
-                </p>
-              </div>
-            )}
+        {/* Header with Title and back button */}
+        <motion.div
+          className="w-full flex flex-col md:flex-row justify-between items-center mb-3 gap-4"
+          variants={itemVariants}
+        >
+          <h2 className="text-4xl md:text-5xl font-bold text-white text-left">
+            Assessment Results
+          </h2>
 
-            {error && (
-              <div className="bg-red-500/20 border border-red-500 rounded-lg p-3 mt-4 backdrop-blur-sm">
-                <p className="text-red-400 text-sm">{error}</p>
-              </div>
-            )}
-          </motion.div>
+          <Button
+            onClick={onReset}
+            className="bg-gray-900/50 border-gray-600 text-white hover:bg-gray-800 hover:border-gray-500 transition-colors duration-300"
+          >
+            Start New Assessment
+          </Button>
+        </motion.div>
 
-          {/* Trust Score */}
-          <motion.div variants={itemVariants}>
-            <Card className="backdrop-blur-sm p-8 text-center relative overflow-hidden" style={boxStyle}>
-              <h2 className="text-black text-2xl font-bold mb-4">Trust Score</h2>
-              <div className="space-y-4">
-                <div className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#274BA9] to-[#6E87C9]">
-                  {trustScore}%
-                </div>
-                <Badge
-                  className={`text-lg px-4 py-2 ${
-                    isAuthentic
-                      ? "bg-green-500/20 text-green-600 border-green-500"
-                      : "bg-red-500/20 text-red-600 border-red-500"
-                  }`}
-                >
-                  {isAuthentic ? "Likely Authentic" : "Authenticity Questionable"}
-                </Badge>
-
-                {/* Eligibility Status */}
-                {connected && eligibilityInfo && (
-                  <div className="mt-4 space-y-2">
+        {/* Main Content */}
+        <div className="w-full flex flex-col lg:flex-row gap-6">
+          {/* Left Column - Trust Score card */}
+          <motion.div
+            className="w-full lg:w-1/2"
+            variants={itemVariants}
+          >
+            {/* Trust Score */}
+            <div className="rounded-xl p-7 relative overflow-hidden mb-6" style={boxStyle}>
+              <h3 className="text-white text-xl font-semibold mb-4 text-center">Trust Score</h3>
+              
+              <div className="flex flex-col items-center justify-center">
+                <div className="relative w-48 h-48 mb-6">
+                  {/* Circular background */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-900/20 to-indigo-900/30 backdrop-blur-sm border border-white/10"></div>
+                  
+                  {/* Score display */}
+                  <div className="absolute inset-0 flex items-center justify-center flex-col">
+                    <div className="text-6xl font-bold text-white">
+                      {trustScore}%
+                    </div>
+                    <div className="text-blue-300 text-sm mt-1">
+                      {isAuthentic ? "Likely Authentic" : "Needs Improvement"}
+                    </div>
+                  </div>
+                  
+                  {/* Status indicator */}
+                  <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2">
                     <Badge
-                      className={`text-sm px-3 py-1 ${
-                        eligibilityInfo.eligible
-                          ? "bg-blue-500/20 text-blue-600 border-blue-500"
-                          : "bg-gray-500/20 text-gray-600 border-gray-500"
+                      className={`px-3 py-1 text-xs ${
+                        isAuthentic
+                          ? "bg-green-500/20 text-green-300 border-green-500/50"
+                          : "bg-red-500/20 text-red-300 border-red-500/50"
                       }`}
                     >
-                      {eligibilityInfo.eligible
+                      {isAuthentic ? (
+                        <div className="flex items-center space-x-1">
+                          <CheckCircle className="h-3 w-3" />
+                          <span>Verified</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-1">
+                          <XCircle className="h-3 w-3" />
+                          <span>Unverified</span>
+                        </div>
+                      )}
+                    </Badge>
+                  </div>
+                </div>
+                
+                {/* Eligibility Status */}
+                {connected && (
+                  <div className="mt-2 space-y-2">
+                    <Badge
+                      className={`text-sm px-3 py-1 ${
+                        eligibilityInfo?.eligible
+                          ? "bg-blue-500/20 text-blue-300 border-blue-500/50"
+                          : "bg-gray-500/20 text-gray-300 border-gray-500/50"
+                      }`}
+                    >
+                      {eligibilityInfo?.eligible
                         ? "✅ Eligible for NFT"
-                        : "❌ Not Eligible"}
+                        : "❌ Not Yet Eligible"}
                     </Badge>
                   </div>
                 )}
               </div>
-            </Card>
-          </motion.div>
-
-          {/* Breakdown */}
-          <motion.div variants={itemVariants}>
-            <Card className="backdrop-blur-sm p-6 relative overflow-hidden" style={boxStyle}>
-              <h3 className="text-black text-xl font-bold mb-6">
-                Detailed Breakdown
+            </div>
+          
+            {/* Action Card */}
+            <div className="rounded-xl p-5 relative overflow-hidden" style={boxStyle}>
+              <h3 className="text-white text-xl font-semibold mb-4">
+                {isAuthentic ? "Mint Your Verification NFT" : "Try Again"}
               </h3>
-              <div className="grid gap-4">
-                <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg">
-                  <span className="text-gray-700 font-medium">
-                    Sentiment vs. expression alignment
-                  </span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-green-500 rounded-full" />
-                    <span className="text-green-600 font-medium">✓ Consistent</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg">
-                  <span className="text-gray-700 font-medium">
-                    Response confidence (filler words, tone)
-                  </span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-yellow-500 rounded-full" />
-                    <span className="text-yellow-600 font-medium">⚠️ Moderate</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg">
-                  <span className="text-gray-700 font-medium">Facial micro-expressions</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-green-500 rounded-full" />
-                    <span className="text-green-600 font-medium">✓ Natural</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg">
-                  <span className="text-gray-700 font-medium">Speech pattern analysis</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-green-500 rounded-full" />
-                    <span className="text-green-600 font-medium">✓ Authentic</span>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-
-          {/* Actions */}
-          <motion.div variants={itemVariants} className="grid md:grid-cols-2 gap-4">
-            <Card className="backdrop-blur-sm p-6 text-center" style={boxStyle}>
-              <h4 className="text-black text-lg font-semibold mb-4">
-                {isAuthentic ? "Congratulations!" : "Try Again"}
-              </h4>
+              
               {isAuthentic ? (
                 <div className="space-y-4">
-                  <p className="text-gray-700">
-                    Your authenticity score qualifies for NFT minting!
+                  <p className="text-gray-300 text-sm mb-4">
+                    Your authenticity score qualifies you to receive a LieAbility NFT that verifies your authentic communication.
                   </p>
 
-                  {/* Show submit button if assessment not submitted and user is connected but not eligible */}
-                  {connected && !eligibilityInfo?.eligible && (
-                    <Button
-                      onClick={handleSubmitAssessment}
-                      disabled={isSubmittingAssessment}
-                      className="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white mb-2"
-                    >
-                      {isSubmittingAssessment
-                        ? "Submitting Assessment..."
-                        : "Submit Assessment for NFT Eligibility"}
-                    </Button>
-                  )}
-
+                  {/* Mint Button - Enhanced with glow and animations */}
                   <Button
                     onClick={handleMintNFT}
                     disabled={mintButtonState.disabled}
-                    className="w-full bg-gradient-to-r from-[#274BA9] to-[#6E87C9] hover:opacity-90 text-white disabled:opacity-70 disabled:cursor-not-allowed shadow-md transition-all duration-300 border border-white/20 rounded-lg"
+                    className={`
+                      w-full relative overflow-hidden
+                      bg-gradient-to-r from-[#1E40AF] via-[#3B82F6] to-[#60A5FA]
+                      hover:from-[#1E3A8A] hover:via-[#3B76E3] hover:to-[#60A5FA]
+                      text-white disabled:opacity-70 disabled:cursor-not-allowed 
+                      rounded-lg py-6 transition-all duration-300
+                      border border-blue-300/30
+                      ${!mintButtonState.disabled ? 'mint-button-glow nft-button-shine' : ''}
+                      transform hover:scale-[1.02] active:scale-[0.98]
+                    `}
                   >
-                    {mintButtonState.text}
+                    <div className="flex items-center justify-center space-x-3 relative z-10">
+                      <Award className="h-6 w-6 text-blue-100 animate-pulse" />
+                      <span className="text-lg font-bold tracking-wide text-blue-100 drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]">
+                        {mintButtonState.text}
+                      </span>
+                    </div>
+                    {/* Inner glow effect */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-blue-400/10 to-blue-300/20 opacity-80"></div>
                   </Button>
+                  
+                  {/* Connected wallet info */}
+                  {connected && (
+                    <div className="mt-4 pt-4 border-t border-white/10">
+                      <button
+                        onClick={disconnectWallet}
+                        className="w-full text-sm text-gray-400 hover:text-white transition-colors"
+                      >
+                        Disconnect Wallet
+                      </button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <p className="text-gray-700">
-                    Consider practicing your responses and try again
+                  <p className="text-gray-300 text-sm">
+                    Your score indicates some areas for improvement. Consider practicing your responses and try again.
                   </p>
                   <Button
                     onClick={onReset}
-                    className="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white"
+                    className="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:opacity-90 text-white"
                   >
                     Retake Assessment
                   </Button>
                 </div>
               )}
-            </Card>
+            </div>
+          </motion.div>
 
-            <Card className="backdrop-blur-sm p-6 text-center" style={boxStyle}>
-              <h4 className="text-black text-lg font-semibold mb-4">
-                New Assessment
-              </h4>
-              <div className="space-y-4">
-                <p className="text-gray-700">
-                  Ready to test your authenticity again? Start a fresh
-                  assessment to improve your score.
-                </p>
-
-                <Button
-                  onClick={onReset}
-                  className="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white"
+          {/* Right Column - Breakdown */}
+          <motion.div
+            className="w-full lg:w-1/2 flex flex-col gap-4"
+            variants={itemVariants}
+          >
+            <div className="rounded-xl p-5 relative overflow-hidden" style={boxStyle}>
+              <h3 className="text-white text-xl font-semibold mb-4">
+                Detailed Breakdown
+              </h3>
+              
+              <div className="space-y-3">
+                <div 
+                  className="p-3 rounded-xl flex items-center justify-between gap-3 transition-all duration-300 hover:scale-[1.02]" 
+                  style={innerBoxStyle}
                 >
-                  Start New Assessment
-                </Button>
-
-                {connected && (
-                  <div className="pt-2 border-t border-gray-700">
-                    <p className="text-gray-400 font-bold text-sm mb-3">
-                      Wallet Management
-                    </p>
-                    <Button
-                      onClick={disconnectWallet}
-                      variant="outline"
-                      className="w-full bg-gray-800/50 border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700/50"
-                    >
-                      Disconnect Wallet
-                    </Button>
+                  <span className="text-white font-medium">Sentiment vs. expression alignment</span>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full" />
+                    <span className="text-green-300 font-medium">Consistent</span>
                   </div>
-                )}
+                </div>
+                
+                <div 
+                  className="p-3 rounded-xl flex items-center justify-between gap-3 transition-all duration-300 hover:scale-[1.02]" 
+                  style={innerBoxStyle}
+                >
+                  <span className="text-white font-medium">Response confidence</span>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full" />
+                    <span className="text-yellow-300 font-medium">Moderate</span>
+                  </div>
+                </div>
+                
+                <div 
+                  className="p-3 rounded-xl flex items-center justify-between gap-3 transition-all duration-300 hover:scale-[1.02]" 
+                  style={innerBoxStyle}
+                >
+                  <span className="text-white font-medium">Facial micro-expressions</span>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full" />
+                    <span className="text-green-300 font-medium">Natural</span>
+                  </div>
+                </div>
+                
+                <div 
+                  className="p-3 rounded-xl flex items-center justify-between gap-3 transition-all duration-300 hover:scale-[1.02]" 
+                  style={innerBoxStyle}
+                >
+                  <span className="text-white font-medium">Speech pattern analysis</span>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full" />
+                    <span className="text-green-300 font-medium">Authentic</span>
+                  </div>
+                </div>
               </div>
-            </Card>
+            </div>
+            
+            {/* Assessment Info Card */}
+            <div 
+              className="rounded-xl p-3 relative overflow-hidden"
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.15)', 
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                backdropFilter: 'blur(12px)',
+                boxShadow: '0 8px 32px rgba(255, 255, 255, 0.15), 0 0 15px rgba(255, 255, 255, 0.05) inset',
+              }}
+            >
+              <div className="flex justify-between items-center text-center">
+                {/* Date */}
+                <div className="flex flex-col items-center space-y-1 px-2">
+                  <div className="p-2 rounded-full bg-blue-500/20 text-blue-300">
+                    <Clock className="h-5 w-5" />
+                  </div>
+                  <p className="text-gray-400 text-xs">Completed</p>
+                  <p className="text-white font-semibold">Just Now</p>
+                </div>
+
+                {/* Score */}
+                <div className="flex flex-col items-center space-y-1 px-2">
+                  <div className="p-2 rounded-full bg-green-500/20 text-green-300">
+                    <CheckCheck className="h-5 w-5" />
+                  </div>
+                  <p className="text-gray-400 text-xs">Score</p>
+                  <p className="text-white font-semibold">{trustScore}%</p>
+                </div>
+
+                {/* Status */}
+                <div className="flex flex-col items-center space-y-1 px-2">
+                  <div className="p-2 rounded-full bg-purple-500/20 text-purple-300">
+                    {isAuthentic ? 
+                      <Award className="h-5 w-5" /> :
+                      <AlertTriangle className="h-5 w-5" />
+                    }
+                  </div>
+                  <p className="text-gray-400 text-xs">Status</p>
+                  <p className="text-white font-semibold">{isAuthentic ? "Verified" : "Unverified"}</p>
+                </div>
+              </div>
+            </div>
           </motion.div>
         </div>
       </motion.div>
