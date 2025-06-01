@@ -41,28 +41,11 @@ const NeumorphicButton = ({
 
 interface InterviewStartScreenProps {
   onStart: () => void;
+  onTestCamera: () => void;
 }
 
-const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
-  const [showCameraTest, setShowCameraTest] = useState(false);
-  const {
-    videoRef,
-    isStreaming,
-    hasPermission,
-    error: cameraError,
-    startCamera,
-    stopCamera,
-  } = useCamera();
-
-  const handleTestCamera = async () => {
-    setShowCameraTest(true);
-    await startCamera();
-  };
-
-  const handleStartInterview = () => {
-    // Camera will continue running via context
-    onStart();
-  };
+const InterviewStartScreen = ({ onStart, onTestCamera }: InterviewStartScreenProps) => {
+  const { hasPermission, error: cameraError } = useCamera();
 
   // Common box styling
   const boxStyle = {
@@ -119,8 +102,10 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
         >
           <AnimatedEye size={130} />
           <div className="text-center">
-            <h1 className="text-6xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
-              LieAbility
+            <h1 className="text-6xl font-extrabold tracking-tight">
+              <span className="bg-gradient-to-r from-white via-white to-gray-400 bg-clip-text text-transparent drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
+                LieAbility
+              </span>
             </h1>
             <p className="text-gray-400 mt-2 text-lg font-medium">Authenticity-based behavioral assessment</p>
           </div>
@@ -145,74 +130,6 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
               You're about to begin an authenticity-based behavioral assessment. You won't be able to pause or redo this once started.
             </p>
           </div>
-        </motion.div>
-
-        {/* Camera Requirements Card */}
-        <motion.div 
-          className="w-full rounded-xl p-7 relative overflow-hidden"
-          style={boxStyle}
-          variants={itemVariants}
-        >
-          <p className="text-black text-lg font-medium text-center mb-6">
-            This assessment requires camera and microphone access for behavioral analysis.
-          </p>
-
-          <div className="flex justify-center">
-            <NeumorphicButton
-              onClick={handleTestCamera}
-              color="blue"
-            >
-              Test Mic and Camera
-            </NeumorphicButton>
-          </div>
-
-          {/* Camera Test Section */}
-          {showCameraTest && (
-            <motion.div 
-              className="mt-6 space-y-5"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              transition={{ duration: 0.3 }}
-            >
-              {cameraError && (
-                <div className="bg-red-900/30 border border-red-500 rounded-xl p-5">
-                  <p className="text-red-400 font-semibold mb-3">
-                    Camera Error
-                  </p>
-                  <p className="text-gray-300 text-sm mb-4">{cameraError}</p>
-                  <NeumorphicButton
-                    onClick={startCamera}
-                    className="bg-red-600 hover:bg-red-500 text-white"
-                  >
-                    Try Again
-                  </NeumorphicButton>
-                </div>
-              )}
-
-              {!cameraError && isStreaming && (
-                <div className="space-y-4">
-                  <div className="bg-green-900/30 border border-green-500 rounded-xl p-5">
-                    <p className="text-green-400 font-semibold flex items-center">
-                      <Check className="mr-2 h-5 w-5" /> Camera & Microphone Ready
-                    </p>
-                  </div>
-
-                  {/* Camera Preview */}
-                  <div className="bg-gray-800/80 rounded-xl overflow-hidden shadow-lg">
-                    <video
-                      ref={videoRef}
-                      autoPlay
-                      playsInline
-                      muted
-                      controls={false}
-                      style={{ transform: "scaleX(-1)" }}
-                      className="w-full h-56 object-cover"
-                    />
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          )}
         </motion.div>
 
         {/* What Will Be Measured Card */}
@@ -270,12 +187,11 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
           variants={itemVariants}
         >
           <NeumorphicButton
-            onClick={handleStartInterview}
-            disabled={showCameraTest && !isStreaming}
+            onClick={onTestCamera}
             color="accent"
-            className="min-w-[200px] px-8 py-3 text-lg rounded-full bg-gradient-to-r from-blue-400 to-cyan-300 shadow-[8px_8px_16px_rgba(0,0,30,0.4),-8px_-8px_16px_rgba(120,200,255,0.25)] border border-white/20"
+            className="min-w-[200px] px-8 py-3 text-lg rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 "
           >
-            <span className="drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)]">Begin</span>
+            <span className="text-white drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)]">Test Mic and Camera</span>
           </NeumorphicButton>
         </motion.div>
       </motion.div>
