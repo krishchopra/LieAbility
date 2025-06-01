@@ -8,7 +8,6 @@ LieAbility is a cutting-edge application that analyzes user responses for authen
 - **Blockchain Verification**: Issues NFT certificates on Hedera testnet for qualifying users (≥75% trust score)
 - **Secure Backend**: Server-side assessment verification and eligibility granting
 - **MetaMask Integration**: Connect your wallet to mint and manage NFT certificates
-- **BlockScout Integration**: View and interact with smart contracts on the explorer
 
 ## Architecture
 
@@ -120,10 +119,6 @@ npm run dev        # Start with nodemon (http://localhost:3001)
 npm start          # Production start
 ```
 
-## Smart Contract Deployment
-
-See `HEDERA_SETUP.md` and `README_NFT_IMPLEMENTATION.md` for detailed deployment instructions.
-
 ## Backend API Endpoints
 
 - `GET /health` - Health check
@@ -140,24 +135,6 @@ See `HEDERA_SETUP.md` and `README_NFT_IMPLEMENTATION.md` for detailed deployment
 ## Technologies Used
 
 - **Frontend**: Vite, TypeScript, React, shadcn-ui, Tailwind CSS
-- **Backend**: Express.js, CORS, dotenv
+- **Backend**: Express.js, CORS, dotenv, mediapipe, tensorflow
 - **Blockchain**: Hedera SDK, ethers.js, ERC-721
 - **Development**: Nodemon, MetaMask integration
-
-## Development vs Production
-
-This setup is designed for localhost development and testnet deployment. For production:
-
-- Use environment-specific configuration
-- Implement proper authentication and rate limiting
-- Add comprehensive input validation and sanitization
-- Use secure key management solutions
-- Implement proper error handling and logging
-
-## Support
-
-For deployment instructions and advanced configuration, see:
-
-- `HEDERA_SETUP.md` - Hedera network and wallet setup
-- `README_NFT_IMPLEMENTATION.md` - Smart contract implementation details
-- `backend-requirements.md` - Backend architecture and requirements

@@ -4,24 +4,41 @@ import { Card } from "@/components/ui/card";
 import AnimatedEye from "./AnimatedEye";
 import MovingGradientBackground from "./MovingGradientBackground";
 import { useCamera } from "@/contexts/CameraContext";
-import { AlertTriangle, Smile, Eye as EyeIcon, MessageSquare, Check, Camera, CheckCircle2, XCircle, Volume2, LampDesk, Wifi, Clock, Timer, ListChecks } from "lucide-react";
+import {
+  AlertTriangle,
+  Smile,
+  Eye as EyeIcon,
+  MessageSquare,
+  Check,
+  Camera,
+  CheckCircle2,
+  XCircle,
+  Volume2,
+  LampDesk,
+  Wifi,
+  Clock,
+  Timer,
+  ListChecks,
+} from "lucide-react";
 import { motion } from "framer-motion";
 
 // Neumorphic button component
-const NeumorphicButton = ({ 
-  children, 
-  onClick, 
-  className = "", 
+const NeumorphicButton = ({
+  children,
+  onClick,
+  className = "",
   disabled = false,
-  color = "blue" // "blue" or "accent"
+  color = "blue", // "blue" or "accent"
 }) => {
-  const baseStyle = "relative flex items-center justify-center px-6 py-2 rounded-xl font-medium text-base transition-all duration-300 transform active:scale-95 active:shadow-inner disabled:opacity-70 disabled:cursor-not-allowed";
-  
+  const baseStyle =
+    "relative flex items-center justify-center px-6 py-2 rounded-xl font-medium text-base transition-all duration-300 transform active:scale-95 active:shadow-inner disabled:opacity-70 disabled:cursor-not-allowed";
+
   const colorStyles = {
     blue: "text-white bg-blue-600 shadow-[5px_5px_10px_rgba(0,0,30,0.3),-5px_-5px_10px_rgba(70,130,240,0.1)]",
-    accent: "text-gray-900 bg-gradient-to-r from-blue-400 to-cyan-300 shadow-[5px_5px_10px_rgba(0,0,30,0.3),-5px_-5px_10px_rgba(120,200,255,0.15)]"
+    accent:
+      "text-gray-900 bg-gradient-to-r from-blue-400 to-cyan-300 shadow-[5px_5px_10px_rgba(0,0,30,0.3),-5px_-5px_10px_rgba(120,200,255,0.15)]",
   };
-  
+
   return (
     <button
       onClick={disabled ? undefined : onClick}
@@ -32,7 +49,7 @@ const NeumorphicButton = ({
       <span className="absolute inset-0 rounded-xl overflow-hidden">
         <span className="absolute inset-0 opacity-20 bg-gradient-to-b from-white via-transparent to-transparent"></span>
       </span>
-      
+
       {/* Button content */}
       <span className="relative z-10">{children}</span>
     </button>
@@ -44,7 +61,14 @@ interface InterviewStartScreenProps {
 }
 
 const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
-  const { videoRef, stream, isStreaming, hasPermission, error: cameraError, startCamera } = useCamera();
+  const {
+    videoRef,
+    stream,
+    isStreaming,
+    hasPermission,
+    error: cameraError,
+    startCamera,
+  } = useCamera();
 
   // Start camera when component mounts
   useEffect(() => {
@@ -53,17 +77,17 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
 
   // Common box styling - updated for glassmorphic effect
   const boxStyle = {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)', // More transparent
-    border: '1px solid rgba(255, 255, 255, 0.2)', // More subtle border
-    backdropFilter: 'blur(12px)', // Slightly reduced blur for better transparency
-    boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15)', // Softer shadow for glass effect
+    backgroundColor: "rgba(255, 255, 255, 0.15)", // More transparent
+    border: "1px solid rgba(255, 255, 255, 0.2)", // More subtle border
+    backdropFilter: "blur(12px)", // Slightly reduced blur for better transparency
+    boxShadow: "0 8px 32px rgba(31, 38, 135, 0.15)", // Softer shadow for glass effect
   };
 
   // Inner box styling for "What will be measured" items - updated for glassmorphic effect
   const innerBoxStyle = {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)', // Very transparent background
-    backdropFilter: 'blur(8px)', // Lighter blur
-    border: '1px solid rgba(255, 255, 255, 0.18)', // Subtle border
+    backgroundColor: "rgba(255, 255, 255, 0.1)", // Very transparent background
+    backdropFilter: "blur(8px)", // Lighter blur
+    border: "1px solid rgba(255, 255, 255, 0.18)", // Subtle border
   };
 
   // Animation variants
@@ -72,30 +96,31 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.15
-      }
-    }
+        staggerChildren: 0.15,
+      },
+    },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
-      transition: { 
-        type: "spring", 
-        stiffness: 260, 
-        damping: 20 
-      } 
-    }
+      transition: {
+        type: "spring",
+        stiffness: 260,
+        damping: 20,
+      },
+    },
   };
 
-  const iconStyle = "h-6 w-6 text-blue-400 group-hover:text-blue-300 transition-colors duration-300";
+  const iconStyle =
+    "h-6 w-6 text-blue-400 group-hover:text-blue-300 transition-colors duration-300";
 
   return (
     <MovingGradientBackground variant="dark">
       {/* Add keyframe animations for the button glow effect and geometric background */}
-      <style jsx global>{`
+      <style>{`
         @keyframes button-pulse-glow {
           0% {
             box-shadow: 0 0 5px 0 rgba(56, 189, 248, 0.4), 0 0 20px 0 rgba(56, 189, 248, 0.2);
@@ -187,54 +212,69 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
       <div className="fixed inset-0 overflow-hidden z-0 opacity-40">
         {/* Large circle */}
         <div className="absolute rounded-full w-[600px] h-[600px] border-2 border-blue-500/10 top-[-100px] right-[-100px] geo-rotate"></div>
-        
+
         {/* Triangle */}
-        <svg className="absolute top-1/3 left-[-100px] geo-float-x" width="300" height="300" viewBox="0 0 100 100">
-          <polygon 
-            points="50,10 10,90 90,90" 
-            fill="none" 
-            stroke="rgba(96, 165, 250, 0.1)" 
-            strokeWidth="1" 
+        <svg
+          className="absolute top-1/3 left-[-100px] geo-float-x"
+          width="300"
+          height="300"
+          viewBox="0 0 100 100"
+        >
+          <polygon
+            points="50,10 10,90 90,90"
+            fill="none"
+            stroke="rgba(96, 165, 250, 0.1)"
+            strokeWidth="1"
           />
         </svg>
-        
+
         {/* Hexagon */}
-        <svg className="absolute bottom-[-150px] right-1/3 geo-rotate-reverse" width="400" height="400" viewBox="0 0 100 100">
-          <polygon 
-            points="50,3 100,25 100,75 50,97 3,75 3,25" 
-            fill="none" 
-            stroke="rgba(124, 58, 237, 0.15)" 
-            strokeWidth="1" 
+        <svg
+          className="absolute bottom-[-150px] right-1/3 geo-rotate-reverse"
+          width="400"
+          height="400"
+          viewBox="0 0 100 100"
+        >
+          <polygon
+            points="50,3 100,25 100,75 50,97 3,75 3,25"
+            fill="none"
+            stroke="rgba(124, 58, 237, 0.15)"
+            strokeWidth="1"
           />
         </svg>
-        
+
         {/* Grid pattern */}
-        <div 
+        <div
           className="absolute inset-0 geo-pulse"
           style={{
             backgroundImage: `
               linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
               linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)
             `,
-            backgroundSize: '50px 50px',
-            backgroundPosition: 'center center',
+            backgroundSize: "50px 50px",
+            backgroundPosition: "center center",
           }}
         ></div>
-        
+
         {/* Squared square */}
-        <svg className="absolute top-[25%] right-[15%] geo-float-y" width="200" height="200" viewBox="0 0 100 100">
-          <rect 
-            x="20" 
-            y="20" 
-            width="60" 
-            height="60" 
-            fill="none" 
-            stroke="rgba(56, 189, 248, 0.1)" 
-            strokeWidth="1" 
-            transform="rotate(45, 50, 50)" 
+        <svg
+          className="absolute top-[25%] right-[15%] geo-float-y"
+          width="200"
+          height="200"
+          viewBox="0 0 100 100"
+        >
+          <rect
+            x="20"
+            y="20"
+            width="60"
+            height="60"
+            fill="none"
+            stroke="rgba(56, 189, 248, 0.1)"
+            strokeWidth="1"
+            transform="rotate(45, 50, 50)"
           />
         </svg>
-        
+
         {/* Small circles */}
         <div className="absolute w-32 h-32 rounded-full border border-indigo-500/5 left-[15%] bottom-[20%] geo-pulse"></div>
         <div className="absolute w-24 h-24 rounded-full border border-blue-300/10 right-[25%] top-[15%] geo-float-x"></div>
@@ -245,17 +285,21 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
       <div
         className="absolute top-0 right-0 w-[40vw] h-[40vh] pointer-events-none z-0"
         style={{
-          background: 'radial-gradient(circle, rgba(111, 63, 251, 0.4) 0%, rgba(70, 41, 173, 0.2) 50%, rgba(0, 0, 0, 0) 80%)',
-          borderRadius: '0 0 0 100%',
+          background:
+            "radial-gradient(circle, rgba(111, 63, 251, 0.4) 0%, rgba(70, 41, 173, 0.2) 50%, rgba(0, 0, 0, 0) 80%)",
+          borderRadius: "0 0 0 100%",
         }}
       />
-      
+
       {/* Header Bar */}
-      <div className="fixed top-0 left-0 right-0 z-20 px-4 py-3" style={{
-        backgroundColor: 'rgba(10, 10, 30, 0.3)',
-        backdropFilter: 'blur(8px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
-      }}>
+      <div
+        className="fixed top-0 left-0 right-0 z-20 px-4 py-3"
+        style={{
+          backgroundColor: "rgba(10, 10, 30, 0.3)",
+          backdropFilter: "blur(8px)",
+          borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+        }}
+      >
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           {/* Logo and company name integrated into header */}
           <div className="flex items-center space-x-2">
@@ -269,14 +313,29 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
               </span>
             </h1>
           </div>
-          
+
           {/* Navigation Links */}
           <nav className="flex space-x-8">
-            <a href="#" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">How it Works</a>
-            <a href="#" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">About</a>
-            <a href="#" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">Web3 Integration</a>
+            <a
+              href="#"
+              className="text-gray-300 hover:text-white transition-colors text-sm font-medium"
+            >
+              How it Works
+            </a>
+            <a
+              href="#"
+              className="text-gray-300 hover:text-white transition-colors text-sm font-medium"
+            >
+              About
+            </a>
+            <a
+              href="#"
+              className="text-gray-300 hover:text-white transition-colors text-sm font-medium"
+            >
+              Web3 Integration
+            </a>
           </nav>
-          
+
           {/* Right side - Login button */}
           <div className="flex justify-end">
             <button className="text-sm text-blue-400 hover:text-blue-300 transition-colors font-medium">
@@ -285,8 +344,8 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
           </div>
         </div>
       </div>
-      
-      <motion.div 
+
+      <motion.div
         className="min-h-screen flex flex-col items-center justify-center p-1 md:p-2 space-y-6 max-w-7xl mx-auto w-[98%]"
         initial="hidden"
         animate="visible"
@@ -311,12 +370,18 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
               min-w-[180px] px-6 py-3 text-lg rounded-full 
               bg-gradient-to-r from-blue-600 to-cyan-500
               transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]
-              ${isStreaming && !cameraError ? 'start-button-glow start-button-shine' : ''}
+              ${
+                isStreaming && !cameraError
+                  ? "start-button-glow start-button-shine"
+                  : ""
+              }
             `}
             disabled={!isStreaming || !!cameraError}
           >
             <span className="text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]">
-              {!isStreaming || cameraError ? "Camera not ready" : "Start Interview"}
+              {!isStreaming || cameraError
+                ? "Camera not ready"
+                : "Start Interview"}
             </span>
           </NeumorphicButton>
         </motion.div>
@@ -324,18 +389,20 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
         {/* Main two-column layout */}
         <div className="w-full flex flex-col lg:flex-row gap-6">
           {/* Left Column - Camera Preview */}
-          <motion.div
-            className="w-full lg:w-1/2"
-            variants={itemVariants}
-          >
-            <div className="rounded-xl overflow-hidden h-full min-h-[300px] relative" style={boxStyle}>
+          <motion.div className="w-full lg:w-1/2" variants={itemVariants}>
+            <div
+              className="rounded-xl overflow-hidden h-full min-h-[300px] relative"
+              style={boxStyle}
+            >
               {/* Camera Error State */}
               {cameraError && (
                 <div className="absolute inset-0 flex items-center justify-center flex-col p-6 text-center bg-black/30 backdrop-blur-sm">
                   <div className="w-16 h-16 bg-red-600/50 rounded-full flex items-center justify-center mb-4">
                     <XCircle className="h-10 w-10 text-white" />
                   </div>
-                  <h3 className="text-white text-xl font-bold mb-2">Camera Error</h3>
+                  <h3 className="text-white text-xl font-bold mb-2">
+                    Camera Error
+                  </h3>
                   <p className="text-gray-300 mb-4">{cameraError}</p>
                   <NeumorphicButton onClick={startCamera} color="blue">
                     Try Again
@@ -349,8 +416,12 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
                   <div className="w-16 h-16 bg-blue-600/50 rounded-full flex items-center justify-center mb-4 animate-pulse">
                     <Camera className="h-10 w-10 text-white" />
                   </div>
-                  <h3 className="text-white text-xl font-bold mb-2">Initializing Camera</h3>
-                  <p className="text-gray-300">Please allow camera access when prompted</p>
+                  <h3 className="text-white text-xl font-bold mb-2">
+                    Initializing Camera
+                  </h3>
+                  <p className="text-gray-300">
+                    Please allow camera access when prompted
+                  </p>
                 </div>
               )}
 
@@ -368,7 +439,9 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
               {isStreaming && !cameraError && (
                 <div className="absolute bottom-4 right-4 px-4 py-2 bg-green-600/80 backdrop-blur-sm rounded-full flex items-center space-x-2">
                   <CheckCircle2 className="h-5 w-5 text-white" />
-                  <span className="text-white text-sm font-medium">Camera Ready</span>
+                  <span className="text-white text-sm font-medium">
+                    Camera Ready
+                  </span>
                 </div>
               )}
             </div>
@@ -380,13 +453,14 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
             variants={itemVariants}
           >
             {/* Interview Info Card */}
-            <motion.div 
+            <motion.div
               className="w-full rounded-xl p-3 relative overflow-hidden"
               style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.15)', 
-                border: '1px solid rgba(255, 255, 255, 0.25)',
-                backdropFilter: 'blur(12px)',
-                boxShadow: '0 8px 32px rgba(255, 255, 255, 0.15), 0 0 15px rgba(255, 255, 255, 0.05) inset',
+                backgroundColor: "rgba(255, 255, 255, 0.15)",
+                border: "1px solid rgba(255, 255, 255, 0.25)",
+                backdropFilter: "blur(12px)",
+                boxShadow:
+                  "0 8px 32px rgba(255, 255, 255, 0.15), 0 0 15px rgba(255, 255, 255, 0.05) inset",
               }}
               variants={itemVariants}
             >
@@ -421,7 +495,7 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
             </motion.div>
 
             {/* What Will Be Measured Card - Changed to "Before you begin" */}
-            <motion.div 
+            <motion.div
               className="w-full rounded-xl p-5 relative overflow-hidden"
               style={boxStyle}
               variants={itemVariants}
@@ -429,30 +503,39 @@ const InterviewStartScreen = ({ onStart }: InterviewStartScreenProps) => {
               <h3 className="text-white text-xl font-semibold mb-4">
                 Before you begin:
               </h3>
-              
+
               <div className="space-y-2">
-                <motion.div 
-                  className="p-3 rounded-xl flex items-center gap-3 group transition-all duration-300 hover:scale-[1.02]" 
+                <motion.div
+                  className="p-3 rounded-xl flex items-center gap-3 group transition-all duration-300 hover:scale-[1.02]"
                   style={innerBoxStyle}
-                  whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
+                  whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
                 >
-                  <span className="text-white font-medium">🔇 Quiet Zone: Make sure you're in a quiet environment with minimal background noise.</span>
+                  <span className="text-white font-medium">
+                    🔇 Quiet Zone: Make sure you're in a quiet environment with
+                    minimal background noise.
+                  </span>
                 </motion.div>
-                
-                <motion.div 
-                  className="p-3 rounded-xl flex items-center gap-3 group transition-all duration-300 hover:scale-[1.02]" 
+
+                <motion.div
+                  className="p-3 rounded-xl flex items-center gap-3 group transition-all duration-300 hover:scale-[1.02]"
                   style={innerBoxStyle}
-                  whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
+                  whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
                 >
-                  <span className="text-white font-medium">💡 Good Lighting: Sit facing a light source to keep your face clearly visible.</span>
+                  <span className="text-white font-medium">
+                    💡 Good Lighting: Sit facing a light source to keep your
+                    face clearly visible.
+                  </span>
                 </motion.div>
-                
-                <motion.div 
-                  className="p-3 rounded-xl flex items-center gap-3 group transition-all duration-300 hover:scale-[1.02]" 
+
+                <motion.div
+                  className="p-3 rounded-xl flex items-center gap-3 group transition-all duration-300 hover:scale-[1.02]"
                   style={innerBoxStyle}
-                  whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
+                  whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
                 >
-                  <span className="text-white font-medium">🔌 Stable Connection: A strong internet connection helps avoid disruptions.</span>
+                  <span className="text-white font-medium">
+                    🔌 Stable Connection: A strong internet connection helps
+                    avoid disruptions.
+                  </span>
                 </motion.div>
               </div>
             </motion.div>

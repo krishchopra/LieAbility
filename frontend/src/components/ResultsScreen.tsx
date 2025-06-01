@@ -2,20 +2,34 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import MovingGradientBackground from "./MovingGradientBackground";
+import { motion } from "framer-motion";
 import { useNFTContract } from "@/hooks/useNFTContract";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
-import MovingGradientBackground from "./MovingGradientBackground";
+import { AuthenticityScore } from "@/services/AnalysisService";
+import {
+  Brain,
+  Eye,
+  MessageSquare,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle,
+  XCircle,
+  Award,
+  CheckCheck,
+  AlertTriangle,
+  Clock,
+} from "lucide-react";
 import AnimatedEye from "./AnimatedEye";
-import { CheckCircle, XCircle, Award, CheckCheck, AlertTriangle, Clock } from "lucide-react";
 
 interface ResultsScreenProps {
   onReset: () => void;
+  analysisData: AuthenticityScore;
 }
 
-const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
-  // Generate score once and keep it consistent
-  const [trustScore] = useState(() => Math.floor(Math.random() * 26) + 75);
+const ResultsScreen = ({ onReset, analysisData }: ResultsScreenProps) => {
+  // Use real analysis data instead of random generation
+  const trustScore = analysisData.overall;
   const isAuthentic = trustScore >= 75;
 
   const {
@@ -39,37 +53,37 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.15
-      }
-    }
+        staggerChildren: 0.15,
+      },
+    },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
-      transition: { 
-        type: "spring", 
-        stiffness: 260, 
-        damping: 20 
-      } 
-    }
+      transition: {
+        type: "spring",
+        stiffness: 260,
+        damping: 20,
+      },
+    },
   };
 
   // Common box styling - updated to match InterviewStartScreen
   const boxStyle = {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    backdropFilter: 'blur(12px)',
-    boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15)',
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
+    backdropFilter: "blur(12px)",
+    boxShadow: "0 8px 32px rgba(31, 38, 135, 0.15)",
   };
 
   // Inner box styling for detailed breakdown
   const innerBoxStyle = {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    backdropFilter: 'blur(8px)',
-    border: '1px solid rgba(255, 255, 255, 0.18)',
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backdropFilter: "blur(8px)",
+    border: "1px solid rgba(255, 255, 255, 0.18)",
   };
 
   // Auto-submit assessment when component mounts and user is connected and eligible
@@ -168,119 +182,119 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
 
   const mintButtonState = getMintButtonState();
 
+  // Get score color based on value
+  const getScoreColor = (score: number) => {
+    if (score >= 85) return "from-green-500 to-emerald-600";
+    if (score >= 75) return "from-blue-500 to-cyan-600";
+    if (score >= 60) return "from-yellow-500 to-orange-500";
+    return "from-red-500 to-pink-600";
+  };
+
+  // Get breakdown item color and icon
+  const getBreakdownStyle = (score: number) => {
+    if (score >= 85)
+      return {
+        color: "text-green-600",
+        bg: "bg-green-500/20",
+        border: "border-green-500",
+        icon: CheckCircle,
+      };
+    if (score >= 75)
+      return {
+        color: "text-blue-600",
+        bg: "bg-blue-500/20",
+        border: "border-blue-500",
+        icon: CheckCircle,
+      };
+    if (score >= 60)
+      return {
+        color: "text-yellow-600",
+        bg: "bg-yellow-500/20",
+        border: "border-yellow-500",
+        icon: AlertCircle,
+      };
+    return {
+      color: "text-red-600",
+      bg: "bg-red-500/20",
+      border: "border-red-500",
+      icon: AlertCircle,
+    };
+  };
+
   return (
     <MovingGradientBackground variant="dark">
       {/* Add keyframe animations for the glowing button and circular progress */}
-      <style jsx global>{`
+      <style>{`
         @keyframes pulse-glow {
           0% {
             box-shadow: 0 0 5px 0 rgba(98, 132, 231, 0.4), 0 0 20px 0 rgba(98, 132, 231, 0.2);
           }
           50% {
-            box-shadow: 0 0 15px 5px rgba(98, 132, 231, 0.6), 0 0 30px 15px rgba(98, 132, 231, 0.3);
+            box-shadow: 0 0 20px 0 rgba(98, 132, 231, 0.6), 0 0 40px 0 rgba(98, 132, 231, 0.4);
           }
           100% {
             box-shadow: 0 0 5px 0 rgba(98, 132, 231, 0.4), 0 0 20px 0 rgba(98, 132, 231, 0.2);
           }
         }
-        @keyframes box-glow {
-          0% {
-            box-shadow: 0 0 10px 0 rgba(59, 130, 246, 0.3), 0 0 20px 0 rgba(59, 130, 246, 0.2);
-            border-color: rgba(59, 130, 246, 0.2);
-          }
-          50% {
-            box-shadow: 0 0 20px 5px rgba(59, 130, 246, 0.5), 0 0 40px 8px rgba(59, 130, 246, 0.3);
-            border-color: rgba(96, 165, 250, 0.3);
-          }
-          100% {
-            box-shadow: 0 0 10px 0 rgba(59, 130, 246, 0.3), 0 0 20px 0 rgba(59, 130, 246, 0.2);
-            border-color: rgba(59, 130, 246, 0.1);
-          }
-        }
+
         @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+
+        @keyframes ring-fill {
           0% {
-            background-position: -100% 0;
+            stroke-dasharray: 0 276.46;
           }
           100% {
-            background-position: 200% 0;
+            stroke-dasharray: calc(276.46 * var(--score-percent) / 100) 276.46;
           }
         }
-        .nft-button-shine {
-          position: relative;
-          overflow: hidden;
+
+        .trust-score-glow {
+          box-shadow: 0 0 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(59, 130, 246, 0.2);
         }
-        .nft-button-shine::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(
-            90deg, 
-            transparent, 
-            rgba(255, 255, 255, 0.2), 
-            transparent
-          );
-          background-size: 200% 100%;
-          animation: shimmer 2s infinite;
+
+        .trust-score-inner {
+          background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 197, 253, 0.05) 100%);
         }
+
+        .score-ring-bg {
+          opacity: 0.3;
+        }
+
+        .score-ring-fill {
+          stroke-dasharray: 0 276.46;
+          stroke-dashoffset: 69.115; /* Start from top */
+          animation: ring-fill 2s ease-out forwards;
+          animation-delay: 0.5s;
+        }
+
         .mint-button-glow {
           animation: pulse-glow 2s infinite;
         }
-        @keyframes score-fill {
-          0% {
-            stroke-dasharray: 0 calc(2 * 3.14159 * 44);
-          }
-          100% {
-            stroke-dasharray: calc((var(--score-percent) / 100) * 2 * 3.14159 * 44) calc(2 * 3.14159 * 44);
-          }
+
+        .nft-button-shine::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+          animation: shimmer 3s infinite;
         }
-        .score-ring {
-          transform: rotate(-90deg);
-          transform-origin: 50% 50%;
-          transition: all 1.5s ease;
-        }
-        .score-ring-bg {
-          opacity: 0.2;
-        }
-        .score-ring-fill {
-          stroke-dasharray: 0 calc(2 * 3.14159 * 44);
-          animation: score-fill 1.5s ease forwards;
-        }
-        .score-ring-track {
-          filter: drop-shadow(0px 0px 3px rgba(104, 211, 145, 0.5));
-        }
-        .trust-score-inner {
-          background: radial-gradient(circle at center, rgba(23, 37, 84, 0.7) 0%, rgba(30, 58, 138, 0.8) 100%);
-        }
-        .trust-score-glow {
-          box-shadow: 0 0 15px 0 rgba(59, 130, 246, 0.3);
-        }
+
         .mint-box-glow {
-          animation: box-glow 3s infinite;
-          backdrop-filter: blur(15px);
-          border: 1px solid rgba(96, 165, 250, 0.5);
-          background: linear-gradient(135deg, rgba(30, 58, 138, 0.6), rgba(59, 130, 246, 0.15));
+          background: linear-gradient(135deg, rgba(30, 64, 175, 0.15) 0%, rgba(59, 130, 246, 0.1) 50%, rgba(147, 197, 253, 0.05) 100%);
+          border: 1px solid rgba(59, 130, 246, 0.3);
+          box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2), 0 0 20px rgba(59, 130, 246, 0.1) inset;
         }
       `}</style>
 
-      {/* Additional corner gradient */}
-      <div
-        className="absolute top-0 right-0 w-[40vw] h-[40vh] pointer-events-none z-0"
-        style={{
-          background: 'radial-gradient(circle, rgba(111, 63, 251, 0.4) 0%, rgba(70, 41, 173, 0.2) 50%, rgba(0, 0, 0, 0) 80%)',
-          borderRadius: '0 0 0 100%',
-        }}
-      />
-      
-      {/* Header Bar */}
-      <div className="fixed top-0 left-0 right-0 z-20 px-4 py-3" style={{
-        backgroundColor: 'rgba(10, 10, 30, 0.3)',
-        backdropFilter: 'blur(8px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
-      }}>
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+      {/* Header bar with logo */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-sm border-b border-white/10">
+        <div className="max-w-7xl mx-auto flex justify-between items-center py-4 px-6">
           {/* Logo and company name integrated into header */}
           <div className="flex items-center space-x-2">
             <AnimatedEye size={30} />
@@ -293,7 +307,7 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
               </span>
             </h1>
           </div>
-          
+
           {/* Right side - Account display if connected */}
           <div className="flex justify-end">
             {connected ? (
@@ -304,15 +318,18 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
                 </span>
               </div>
             ) : (
-              <button className="text-sm text-blue-400 hover:text-blue-300 transition-colors font-medium" onClick={handleConnectWallet}>
+              <button
+                className="text-sm text-blue-400 hover:text-blue-300 transition-colors font-medium"
+                onClick={handleConnectWallet}
+              >
                 Connect Wallet
               </button>
             )}
           </div>
         </div>
       </div>
-      
-      <motion.div 
+
+      <motion.div
         className="min-h-screen flex flex-col items-center p-1 md:p-2 space-y-6 max-w-7xl mx-auto w-[98%]"
         initial="hidden"
         animate="visible"
@@ -341,26 +358,40 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
         {/* Main Content */}
         <div className="w-full flex flex-col lg:flex-row gap-6">
           {/* Left Column - Trust Score card */}
-          <motion.div
-            className="w-full lg:w-1/2"
-            variants={itemVariants}
-          >
-            {/* Trust Score */}
-            <div className="rounded-xl p-7 relative overflow-hidden mb-6" style={boxStyle}>
-              <h3 className="text-white text-xl font-semibold mb-4 text-center">Trust Score</h3>
-              
+          <motion.div className="w-full lg:w-1/2" variants={itemVariants}>
+            {/* Trust Score with combined functionality and style */}
+            <div
+              className="rounded-xl p-7 relative overflow-hidden mb-6"
+              style={boxStyle}
+            >
+              <h3 className="text-white text-xl font-semibold mb-4 text-center">
+                AI-Generated Trust Score
+              </h3>
+
               <div className="flex flex-col items-center justify-center">
                 {/* Enhanced Trust Score with Fitness Ring */}
                 <div className="relative w-56 h-56 mb-6 trust-score-glow rounded-full">
                   {/* Animated Circular Progress */}
-                  <svg className="w-full h-full absolute top-0 left-0" viewBox="0 0 100 100">
+                  <svg
+                    className="w-full h-full absolute top-0 left-0"
+                    viewBox="0 0 100 100"
+                  >
                     {/* Colored gradient background ring */}
                     <defs>
-                      <linearGradient id="ringGradient" gradientTransform="rotate(90)">
+                      <linearGradient
+                        id="ringGradient"
+                        gradientTransform="rotate(90)"
+                      >
                         <stop offset="0%" stopColor="#60A5FA" />
                         <stop offset="100%" stopColor="#2563EB" />
                       </linearGradient>
-                      <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                      <filter
+                        id="glow"
+                        x="-20%"
+                        y="-20%"
+                        width="140%"
+                        height="140%"
+                      >
                         <feGaussianBlur stdDeviation="2" result="blur" />
                         <feMerge>
                           <feMergeNode in="blur" />
@@ -368,54 +399,68 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
                         </feMerge>
                       </filter>
                     </defs>
-                    
+
                     {/* Background ring */}
-                    <circle 
-                      className="score-ring-bg" 
-                      cx="50" 
-                      cy="50" 
-                      r="44" 
-                      fill="none" 
-                      stroke="url(#ringGradient)" 
+                    <circle
+                      className="score-ring-bg"
+                      cx="50"
+                      cy="50"
+                      r="44"
+                      fill="none"
+                      stroke="url(#ringGradient)"
                       strokeWidth="6"
                     />
-                    
+
                     {/* Progress ring with animation */}
-                    <circle 
-                      className="score-ring score-ring-fill score-ring-track" 
-                      style={{ '--score-percent': trustScore } as React.CSSProperties}
-                      cx="50" 
-                      cy="50" 
-                      r="44" 
-                      fill="none" 
-                      stroke="url(#ringGradient)" 
-                      strokeWidth="6" 
+                    <circle
+                      className="score-ring score-ring-fill score-ring-track"
+                      style={
+                        { "--score-percent": trustScore } as React.CSSProperties
+                      }
+                      cx="50"
+                      cy="50"
+                      r="44"
+                      fill="none"
+                      stroke="url(#ringGradient)"
+                      strokeWidth="6"
                       strokeLinecap="round"
                       filter="url(#glow)"
                     />
-                    
+
                     {/* Small circles marking progress intervals */}
                     {[0, 25, 50, 75].map((mark) => (
                       <circle
                         key={mark}
-                        cx={50 + 44 * Math.cos(2 * Math.PI * (mark / 100) - Math.PI/2)}
-                        cy={50 + 44 * Math.sin(2 * Math.PI * (mark / 100) - Math.PI/2)}
+                        cx={
+                          50 +
+                          44 *
+                            Math.cos(2 * Math.PI * (mark / 100) - Math.PI / 2)
+                        }
+                        cy={
+                          50 +
+                          44 *
+                            Math.sin(2 * Math.PI * (mark / 100) - Math.PI / 2)
+                        }
                         r="1.5"
                         fill="#fff"
                         opacity="0.7"
                       />
                     ))}
                   </svg>
-                  
+
                   {/* Inner circle with score */}
                   <div className="absolute inset-[12px] rounded-full trust-score-inner border border-blue-500/30 backdrop-blur-sm flex items-center justify-center flex-col">
-                    <div className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-100 via-blue-100 to-blue-200">
+                    <div
+                      className={`text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r ${getScoreColor(
+                        trustScore
+                      )}`}
+                    >
                       {trustScore}%
                     </div>
                     <div className="text-blue-300 text-sm mt-1 font-medium">
                       {isAuthentic ? "Likely Authentic" : "Needs Improvement"}
                     </div>
-                    
+
                     {/* Status indicator moved inside the circle */}
                     <div className="mt-3">
                       <Badge
@@ -440,7 +485,22 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
                     </div>
                   </div>
                 </div>
-                
+
+                {/* Correlation Score from first version */}
+                <div className="mt-4 p-3 rounded-lg" style={innerBoxStyle}>
+                  <div className="text-sm text-gray-300 mb-1 text-center">
+                    Speech-Emotion Correlation
+                  </div>
+                  <div className="text-2xl font-bold text-purple-300 text-center">
+                    {Math.round(
+                      (analysisData.breakdown.sentiment +
+                        analysisData.breakdown.microExpressions) /
+                        2
+                    )}
+                    %
+                  </div>
+                </div>
+
                 {/* Eligibility Status */}
                 {connected && (
                   <div className="mt-2 space-y-2">
@@ -459,20 +519,23 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
                 )}
               </div>
             </div>
-          
+
             {/* Action Card */}
-            <div 
-              className={`rounded-xl p-5 relative overflow-hidden ${isAuthentic ? 'mint-box-glow' : ''}`} 
+            <div
+              className={`rounded-xl p-5 relative overflow-hidden ${
+                isAuthentic ? "mint-box-glow" : ""
+              }`}
               style={isAuthentic ? undefined : boxStyle}
             >
               <h3 className="text-white text-xl font-semibold mb-4">
                 {isAuthentic ? "Mint Your Verification NFT" : "Try Again"}
               </h3>
-              
+
               {isAuthentic ? (
                 <div className="space-y-4">
                   <p className="text-gray-300 text-sm mb-4">
-                    Your authenticity score qualifies you to receive a LieAbility NFT that verifies your authentic communication.
+                    Your authenticity score qualifies you to receive a
+                    LieAbility NFT that verifies your authentic communication.
                   </p>
 
                   {/* Mint Button - Enhanced with glow and animations */}
@@ -486,7 +549,11 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
                       text-white disabled:opacity-70 disabled:cursor-not-allowed 
                       rounded-lg py-6 transition-all duration-300
                       border border-blue-300/30
-                      ${!mintButtonState.disabled ? 'mint-button-glow nft-button-shine' : ''}
+                      ${
+                        !mintButtonState.disabled
+                          ? "mint-button-glow nft-button-shine"
+                          : ""
+                      }
                       transform hover:scale-[1.02] active:scale-[0.98]
                     `}
                   >
@@ -499,7 +566,7 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
                     {/* Inner glow effect */}
                     <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-blue-400/10 to-blue-300/20 opacity-80"></div>
                   </Button>
-                  
+
                   {/* Connected wallet info */}
                   {connected && (
                     <div className="mt-4 pt-4 border-t border-white/10">
@@ -515,7 +582,8 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
               ) : (
                 <div className="space-y-4">
                   <p className="text-gray-300 text-sm">
-                    Your score indicates some areas for improvement. Consider practicing your responses and try again.
+                    Your score indicates some areas for improvement. Consider
+                    practicing your responses and try again.
                   </p>
                   <Button
                     onClick={onReset}
@@ -533,66 +601,165 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
             className="w-full lg:w-1/2 flex flex-col gap-4"
             variants={itemVariants}
           >
-            <div className="rounded-xl p-5 relative overflow-hidden" style={boxStyle}>
-              <h3 className="text-white text-xl font-semibold mb-4">
-                Detailed Breakdown
+            <div
+              className="rounded-xl p-5 relative overflow-hidden"
+              style={boxStyle}
+            >
+              <h3 className="text-white text-xl font-semibold mb-4 flex items-center">
+                <TrendingUp className="w-6 h-6 mr-3" />
+                Detailed AI Analysis Breakdown
               </h3>
-              
+
               <div className="space-y-3">
-                <div 
-                  className="p-3 rounded-xl flex items-center justify-between gap-3 transition-all duration-300 hover:scale-[1.02]" 
+                {/* Enhanced breakdown with actual data from first version */}
+                <div
+                  className="p-3 rounded-xl flex items-center justify-between gap-3 transition-all duration-300 hover:scale-[1.02]"
                   style={innerBoxStyle}
                 >
-                  <span className="text-white font-medium">Sentiment vs. expression alignment</span>
+                  <div className="flex items-center space-x-3">
+                    <Eye className="w-5 h-5 text-purple-400" />
+                    <span className="text-white font-medium">
+                      Sentiment vs. Expression Alignment
+                    </span>
+                  </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-full" />
-                    <span className="text-green-300 font-medium">Consistent</span>
+                    {(() => {
+                      const style = getBreakdownStyle(
+                        analysisData.breakdown.sentiment
+                      );
+                      const Icon = style.icon;
+                      return (
+                        <>
+                          <Icon className={`w-4 h-4 text-white`} />
+                          <span className="text-white font-medium">
+                            {analysisData.breakdown.sentiment}%
+                          </span>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
-                
-                <div 
-                  className="p-3 rounded-xl flex items-center justify-between gap-3 transition-all duration-300 hover:scale-[1.02]" 
+
+                <div
+                  className="p-3 rounded-xl flex items-center justify-between gap-3 transition-all duration-300 hover:scale-[1.02]"
                   style={innerBoxStyle}
                 >
-                  <span className="text-white font-medium">Response confidence</span>
+                  <div className="flex items-center space-x-3">
+                    <MessageSquare className="w-5 h-5 text-green-400" />
+                    <span className="text-white font-medium">
+                      Response Confidence
+                    </span>
+                  </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-yellow-500 rounded-full" />
-                    <span className="text-yellow-300 font-medium">Moderate</span>
+                    {(() => {
+                      const style = getBreakdownStyle(
+                        analysisData.breakdown.coherence
+                      );
+                      const Icon = style.icon;
+                      return (
+                        <>
+                          <Icon className={`w-4 h-4 text-white`} />
+                          <span className="text-white font-medium">
+                            {analysisData.breakdown.coherence}%
+                          </span>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
-                
-                <div 
-                  className="p-3 rounded-xl flex items-center justify-between gap-3 transition-all duration-300 hover:scale-[1.02]" 
+
+                <div
+                  className="p-3 rounded-xl flex items-center justify-between gap-3 transition-all duration-300 hover:scale-[1.02]"
                   style={innerBoxStyle}
                 >
-                  <span className="text-white font-medium">Facial micro-expressions</span>
+                  <div className="flex items-center space-x-3">
+                    <Brain className="w-5 h-5 text-blue-400" />
+                    <span className="text-white font-medium">
+                      Facial Micro-expressions
+                    </span>
+                  </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-full" />
-                    <span className="text-green-300 font-medium">Natural</span>
+                    {(() => {
+                      const style = getBreakdownStyle(
+                        analysisData.breakdown.microExpressions
+                      );
+                      const Icon = style.icon;
+                      return (
+                        <>
+                          <Icon className={`w-4 h-4 text-white`} />
+                          <span className="text-white font-medium">
+                            {analysisData.breakdown.microExpressions}%
+                          </span>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
-                
-                <div 
-                  className="p-3 rounded-xl flex items-center justify-between gap-3 transition-all duration-300 hover:scale-[1.02]" 
+
+                <div
+                  className="p-3 rounded-xl flex items-center justify-between gap-3 transition-all duration-300 hover:scale-[1.02]"
                   style={innerBoxStyle}
                 >
-                  <span className="text-white font-medium">Speech pattern analysis</span>
+                  <div className="flex items-center space-x-3">
+                    <TrendingUp className="w-5 h-5 text-orange-400" />
+                    <span className="text-white font-medium">
+                      Speech Pattern Analysis
+                    </span>
+                  </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-full" />
-                    <span className="text-green-300 font-medium">Authentic</span>
+                    {(() => {
+                      const style = getBreakdownStyle(
+                        analysisData.breakdown.confidence
+                      );
+                      const Icon = style.icon;
+                      return (
+                        <>
+                          <Icon className={`w-4 h-4 text-white`} />
+                          <span className="text-white font-medium">
+                            {analysisData.breakdown.confidence}%
+                          </span>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
+
+              {/* Analysis Insights from first version */}
+              <div className="mt-6 p-4 rounded-lg" style={innerBoxStyle}>
+                <h4 className="text-white font-semibold mb-3">
+                  Analysis Insights:
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-300">
+                  <div>
+                    <span className="font-medium">Overall Score:</span>{" "}
+                    {trustScore}%
+                  </div>
+                  <div>
+                    <span className="font-medium">Speech Analysis:</span>{" "}
+                    {analysisData.speech}%
+                  </div>
+                  <div>
+                    <span className="font-medium">Facial Analysis:</span>{" "}
+                    {analysisData.facial}%
+                  </div>
+                  <div>
+                    <span className="font-medium">Micro-expressions:</span>{" "}
+                    {analysisData.breakdown.microExpressions}%
                   </div>
                 </div>
               </div>
             </div>
-            
+
             {/* Assessment Info Card */}
-            <div 
+            <div
               className="rounded-xl p-3 relative overflow-hidden"
               style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.15)', 
-                border: '1px solid rgba(255, 255, 255, 0.25)',
-                backdropFilter: 'blur(12px)',
-                boxShadow: '0 8px 32px rgba(255, 255, 255, 0.15), 0 0 15px rgba(255, 255, 255, 0.05) inset',
+                backgroundColor: "rgba(255, 255, 255, 0.15)",
+                border: "1px solid rgba(255, 255, 255, 0.25)",
+                backdropFilter: "blur(12px)",
+                boxShadow:
+                  "0 8px 32px rgba(255, 255, 255, 0.15), 0 0 15px rgba(255, 255, 255, 0.05) inset",
               }}
             >
               <div className="flex justify-between items-center text-center">
@@ -617,13 +784,16 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
                 {/* Status */}
                 <div className="flex flex-col items-center space-y-1 px-2">
                   <div className="p-2 rounded-full bg-purple-500/20 text-purple-300">
-                    {isAuthentic ? 
-                      <Award className="h-5 w-5" /> :
+                    {isAuthentic ? (
+                      <Award className="h-5 w-5" />
+                    ) : (
                       <AlertTriangle className="h-5 w-5" />
-                    }
+                    )}
                   </div>
                   <p className="text-gray-400 text-xs">Status</p>
-                  <p className="text-white font-semibold">{isAuthentic ? "Verified" : "Unverified"}</p>
+                  <p className="text-white font-semibold">
+                    {isAuthentic ? "Verified" : "Unverified"}
+                  </p>
                 </div>
               </div>
             </div>

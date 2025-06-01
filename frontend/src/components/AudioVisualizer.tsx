@@ -9,7 +9,9 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
   stream,
   isActive,
 }) => {
-  const [audioLevels, setAudioLevels] = useState<number[]>([0, 0, 0, 0, 0]);
+  const [audioLevels, setAudioLevels] = useState<number[]>([
+    0, 0, 0, 0, 0, 0, 0,
+  ]);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
@@ -24,7 +26,7 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
         audioContextRef.current.close();
         audioContextRef.current = null;
       }
-      setAudioLevels([0, 0, 0, 0, 0]);
+      setAudioLevels([0, 0, 0, 0, 0, 0, 0]);
       return;
     }
 
@@ -46,22 +48,24 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
 
         analyserRef.current.getByteFrequencyData(dataArray);
 
-        // Calculate audio levels for 5 frequency bands
-        const bandSize = Math.floor(bufferLength / 5);
+        // Calculate audio levels for 7 frequency bands
+        const numBands = 7;
+        const bandSize = Math.floor(bufferLength / numBands);
         const levels = [];
 
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < numBands; i++) {
           const start = i * bandSize;
-          const end = start + bandSize;
+          const end = Math.min(start + bandSize, bufferLength);
           let sum = 0;
 
           for (let j = start; j < end; j++) {
-            sum += dataArray[j];
+            sum += dataArray[j] || 0;
           }
 
-          const average = sum / bandSize;
+          const average = sum / Math.max(end - start, 1);
           // Normalize to 0-1 range and apply some smoothing
-          levels.push(Math.min(average / 255, 1));
+          const normalizedLevel = Math.min(Math.max(average / 255, 0), 1);
+          levels.push(isNaN(normalizedLevel) ? 0 : normalizedLevel);
         }
 
         setAudioLevels(levels);
@@ -90,9 +94,9 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
           key={i}
           className="w-1.5 bg-gradient-to-t from-green-400 to-cyan-300 rounded-full transition-all duration-75"
           style={{
-            height: Math.max(level * 40 + 4, 4), // Increased max height
-            opacity: isActive ? 0.7 + level * 0.3 : 0.3,
-            transform: `scaleY(${1 + level * 0.2})`, // Add subtle vertical scaling
+            height: Math.max((level || 0) * 40 + 4, 4), // Ensure no NaN values
+            opacity: isActive ? 0.7 + (level || 0) * 0.3 : 0.3,
+            transform: `scaleY(${1 + (level || 0) * 0.2})`, // Add safety check for level
           }}
         />
       ))}

@@ -10,6 +10,7 @@ const {
   AccountId,
   PrivateKey,
   ContractId,
+  ContractCallQuery,
 } = require("@hashgraph/sdk");
 
 const app = express();
@@ -116,6 +117,7 @@ app.post("/api/submit-assessment", async (req, res) => {
     console.log(
       `📝 Processing assessment for ${userAddress} with score ${trustScore}`
     );
+    console.log(`🔗 Using contract: ${contractId.toString()}`);
 
     // Generate signature for verification
     const timestamp = Math.floor(Date.now() / 1000);
@@ -148,7 +150,10 @@ app.post("/api/submit-assessment", async (req, res) => {
         throw new Error(`Transaction failed: ${receipt.status.toString()}`);
       }
 
-      console.log(`✅ Eligibility granted for ${userAddress}`);
+      console.log(
+        `✅ Eligibility granted for ${userAddress} on contract ${contractId.toString()}`
+      );
+      console.log(`📋 Transaction ID: ${txResponse.transactionId.toString()}`);
 
       res.json({
         success: true,
@@ -159,6 +164,7 @@ app.post("/api/submit-assessment", async (req, res) => {
           timestamp,
           transactionId: txResponse.transactionId.toString(),
           verification,
+          contractId: contractId.toString(),
         },
       });
     } catch (contractError) {
@@ -210,6 +216,194 @@ app.get("/api/eligibility/:address", async (req, res) => {
       success: false,
       error: "Internal server error",
     });
+  }
+});
+
+// NFT Metadata endpoint
+app.get("/api/nft/metadata/:tokenId", async (req, res) => {
+  try {
+    const { tokenId } = req.params;
+    let score = 95; // Default fallback
+
+    // Try to get the actual score from the contract
+    try {
+      if (client && contractId) {
+        // First check if the token exists by checking total supply
+        console.log(`🔍 Checking if token ${tokenId} exists...`);
+
+        const totalSupplyQuery = new ContractCallQuery()
+          .setContractId(contractId)
+          .setGas(30000)
+          .setFunction("totalSupply");
+
+        const totalSupplyResult = await totalSupplyQuery.execute(client);
+        const totalSupply = totalSupplyResult.getUint256(0);
+
+        console.log(
+          `📊 Total supply: ${totalSupply}, requesting token: ${tokenId}`
+        );
+
+        if (parseInt(tokenId) < totalSupply) {
+          // Token exists, try to get its score
+          const contractCallQuery = new ContractCallQuery()
+            .setContractId(contractId)
+            .setGas(50000)
+            .setFunction(
+              "getTokenScore",
+              new ContractFunctionParameters().addUint256(parseInt(tokenId))
+            );
+
+          const contractCallResult = await contractCallQuery.execute(client);
+          score = contractCallResult.getUint256(0);
+          console.log(`📊 Retrieved score ${score} for token ${tokenId}`);
+        } else {
+          console.log(
+            `⚠️ Token ${tokenId} doesn't exist yet (total supply: ${totalSupply})`
+          );
+        }
+      }
+    } catch (error) {
+      console.log(
+        `⚠️ Could not retrieve score for token ${tokenId}, using default:`,
+        error.message
+      );
+    }
+
+    const metadata = {
+      name: `LieAbility Authenticity Certificate #${tokenId}`,
+      description: `This NFT certifies ${score}% authenticity on the LieAbility platform. A unique digital credential proving genuine human interaction and trustworthiness.`,
+      image: `http://localhost:3001/api/nft/image/${tokenId}/${score}`,
+      external_url: `http://localhost:3001/api/nft/metadata/${tokenId}`,
+      attributes: [
+        {
+          trait_type: "Authenticity Score",
+          value: score,
+          display_type: "boost_percentage",
+        },
+        {
+          trait_type: "Verification Level",
+          value:
+            score >= 90
+              ? "Highly Authentic"
+              : score >= 75
+              ? "Authentic"
+              : "Unverified",
+        },
+        {
+          trait_type: "Token ID",
+          value: parseInt(tokenId),
+        },
+        {
+          trait_type: "Issuer",
+          value: "LieAbility Platform",
+        },
+      ],
+      background_color: "1a1a2e",
+    };
+
+    console.log(
+      `✅ Generated metadata for token ${tokenId} with score ${score}`
+    );
+    res.json(metadata);
+  } catch (error) {
+    console.error("❌ Metadata generation error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to generate metadata",
+    });
+  }
+});
+
+// NFT Image generation endpoint
+app.get("/api/nft/image/:tokenId/:score", async (req, res) => {
+  try {
+    const { tokenId, score } = req.params;
+    const scoreNum = parseInt(score) || 95;
+
+    // Generate SVG image with logo and score
+    const svg = `
+    <svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+          <stop offset="50%" style="stop-color:#16213e;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#0f3460;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#e94560;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#f38ba8;stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      
+      <!-- Background -->
+      <rect width="400" height="400" fill="url(#bg)"/>
+      
+      <!-- Border -->
+      <rect x="10" y="10" width="380" height="380" fill="none" stroke="url(#accent)" stroke-width="2" rx="20"/>
+      
+      <!-- LieAbility Eye Logo (Simplified) -->
+      <g transform="translate(200, 120)">
+        <!-- Eye shape -->
+        <ellipse cx="0" cy="0" rx="40" ry="25" fill="#f38ba8" opacity="0.9"/>
+        <!-- Pupil -->
+        <circle cx="0" cy="0" r="15" fill="#1a1a2e"/>
+        <!-- Highlight -->
+        <circle cx="-5" cy="-5" r="4" fill="#ffffff" opacity="0.8"/>
+      </g>
+      
+      <!-- Title -->
+      <text x="200" y="180" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#ffffff">
+        LieAbility
+      </text>
+      
+      <!-- Subtitle -->
+      <text x="200" y="200" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#f38ba8">
+        Authenticity Certificate
+      </text>
+      
+      <!-- Score Circle -->
+      <g transform="translate(200, 260)">
+        <!-- Circle background -->
+        <circle cx="0" cy="0" r="45" fill="none" stroke="#16213e" stroke-width="4"/>
+        <!-- Score arc -->
+        <circle cx="0" cy="0" r="45" fill="none" stroke="url(#accent)" stroke-width="4" 
+                stroke-dasharray="${(scoreNum / 100) * 283} 283" 
+                stroke-dashoffset="71" 
+                transform="rotate(-90)"/>
+        <!-- Score text -->
+        <text x="0" y="8" font-family="Arial, sans-serif" font-size="28" font-weight="bold" text-anchor="middle" fill="#ffffff">
+          ${scoreNum}%
+        </text>
+        <text x="0" y="25" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f38ba8">
+          AUTHENTIC
+        </text>
+      </g>
+      
+      <!-- Token ID -->
+      <text x="200" y="350" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#ffffff" opacity="0.7">
+        Token #${tokenId}
+      </text>
+      
+      <!-- Verification Badge -->
+      <g transform="translate(320, 60)">
+        <circle cx="0" cy="0" r="20" fill="#e94560"/>
+        <text x="0" y="6" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#ffffff">
+          ✓
+        </text>
+      </g>
+      
+      <!-- Verification Text -->
+      <text x="320" y="95" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#e94560">
+        VERIFIED
+      </text>
+    </svg>`;
+
+    res.setHeader("Content-Type", "image/svg+xml");
+    res.setHeader("Cache-Control", "public, max-age=3600"); // Cache for 1 hour
+    res.send(svg);
+  } catch (error) {
+    console.error("❌ Image generation error:", error);
+    res.status(500).send("Failed to generate image");
   }
 });
 
