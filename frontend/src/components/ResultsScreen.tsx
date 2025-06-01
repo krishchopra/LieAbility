@@ -2,18 +2,28 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import MovingGradientBackground from "./MovingGradientBackground";
+import { motion } from "framer-motion";
 import { useNFTContract } from "@/hooks/useNFTContract";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
-import MovingGradientBackground from "./MovingGradientBackground";
+import { AuthenticityScore } from "@/services/AnalysisService";
+import {
+  Brain,
+  Eye,
+  MessageSquare,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
 
 interface ResultsScreenProps {
   onReset: () => void;
+  analysisData: AuthenticityScore;
 }
 
-const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
-  // Generate score once and keep it consistent
-  const [trustScore] = useState(() => Math.floor(Math.random() * 26) + 75);
+const ResultsScreen = ({ onReset, analysisData }: ResultsScreenProps) => {
+  // Use real analysis data instead of random generation
+  const trustScore = analysisData.overall;
   const isAuthentic = trustScore >= 75;
 
   const {
@@ -37,30 +47,30 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.15
-      }
-    }
+        staggerChildren: 0.15,
+      },
+    },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
-      transition: { 
-        type: "spring", 
-        stiffness: 260, 
-        damping: 20 
-      } 
-    }
+      transition: {
+        type: "spring",
+        stiffness: 260,
+        damping: 20,
+      },
+    },
   };
 
   // Common box styling
   const boxStyle = {
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    border: '1px solid rgba(255, 255, 255, 0.5)',
-    backdropFilter: 'blur(24px)',
-    boxShadow: '0 8px 16px rgba(62, 85, 145, 0.5)',
+    backgroundColor: "rgba(255, 255, 255, 0.85)",
+    border: "1px solid rgba(255, 255, 255, 0.5)",
+    backdropFilter: "blur(24px)",
+    boxShadow: "0 8px 16px rgba(62, 85, 145, 0.5)",
   };
 
   // Auto-submit assessment when component mounts and user is connected and eligible
@@ -159,9 +169,48 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
 
   const mintButtonState = getMintButtonState();
 
+  // Get score color based on value
+  const getScoreColor = (score: number) => {
+    if (score >= 85) return "from-green-500 to-emerald-600";
+    if (score >= 75) return "from-blue-500 to-cyan-600";
+    if (score >= 60) return "from-yellow-500 to-orange-500";
+    return "from-red-500 to-pink-600";
+  };
+
+  // Get breakdown item color and icon
+  const getBreakdownStyle = (score: number) => {
+    if (score >= 85)
+      return {
+        color: "text-green-600",
+        bg: "bg-green-500/20",
+        border: "border-green-500",
+        icon: CheckCircle,
+      };
+    if (score >= 75)
+      return {
+        color: "text-blue-600",
+        bg: "bg-blue-500/20",
+        border: "border-blue-500",
+        icon: CheckCircle,
+      };
+    if (score >= 60)
+      return {
+        color: "text-yellow-600",
+        bg: "bg-yellow-500/20",
+        border: "border-yellow-500",
+        icon: AlertCircle,
+      };
+    return {
+      color: "text-red-600",
+      bg: "bg-red-500/20",
+      border: "border-red-500",
+      icon: AlertCircle,
+    };
+  };
+
   return (
     <MovingGradientBackground variant="dark">
-      <motion.div 
+      <motion.div
         className="min-h-screen p-4 max-w-4xl mx-auto w-[95%]"
         initial="hidden"
         animate="visible"
@@ -169,7 +218,10 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
       >
         <div className="space-y-6">
           {/* Header */}
-          <motion.div className="text-center mb-8 mt-12" variants={itemVariants}>
+          <motion.div
+            className="text-center mb-8 mt-12"
+            variants={itemVariants}
+          >
             <h1 className="text-6xl font-extrabold tracking-tight">
               <span className="bg-gradient-to-r from-white via-white to-gray-400 bg-clip-text text-transparent drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]">
                 Assessment Complete!
@@ -195,10 +247,22 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
 
           {/* Trust Score */}
           <motion.div variants={itemVariants}>
-            <Card className="backdrop-blur-sm p-8 text-center relative overflow-hidden" style={boxStyle}>
-              <h2 className="text-black text-2xl font-bold mb-4">Trust Score</h2>
+            <Card
+              className="backdrop-blur-sm p-8 text-center relative overflow-hidden"
+              style={boxStyle}
+            >
+              <div className="flex items-center justify-center mb-4">
+                <Brain className="w-8 h-8 text-gray-600 mr-3" />
+                <h2 className="text-black text-2xl font-bold">
+                  AI-Generated Trust Score
+                </h2>
+              </div>
               <div className="space-y-4">
-                <div className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#274BA9] to-[#6E87C9]">
+                <div
+                  className={`text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r ${getScoreColor(
+                    trustScore
+                  )}`}
+                >
                   {trustScore}%
                 </div>
                 <Badge
@@ -208,8 +272,25 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
                       : "bg-red-500/20 text-red-600 border-red-500"
                   }`}
                 >
-                  {isAuthentic ? "Likely Authentic" : "Authenticity Questionable"}
+                  {isAuthentic
+                    ? "✓ Likely Authentic"
+                    : "⚠️ Authenticity Questionable"}
                 </Badge>
+
+                {/* Correlation Score */}
+                <div className="mt-4 p-3 bg-gray-100 rounded-lg">
+                  <div className="text-sm text-gray-600 mb-1">
+                    Speech-Emotion Correlation
+                  </div>
+                  <div className="text-2xl font-bold text-purple-600">
+                    {Math.round(
+                      (analysisData.breakdown.sentiment +
+                        analysisData.breakdown.microExpressions) /
+                        2
+                    )}
+                    %
+                  </div>
+                </div>
 
                 {/* Eligibility Status */}
                 {connected && eligibilityInfo && (
@@ -231,46 +312,139 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
             </Card>
           </motion.div>
 
-          {/* Breakdown */}
+          {/* Detailed Breakdown */}
           <motion.div variants={itemVariants}>
-            <Card className="backdrop-blur-sm p-6 relative overflow-hidden" style={boxStyle}>
-              <h3 className="text-black text-xl font-bold mb-6">
-                Detailed Breakdown
+            <Card
+              className="backdrop-blur-sm p-6 relative overflow-hidden"
+              style={boxStyle}
+            >
+              <h3 className="text-black text-xl font-bold mb-6 flex items-center">
+                <TrendingUp className="w-6 h-6 mr-3" />
+                Detailed AI Analysis Breakdown
               </h3>
               <div className="grid gap-4">
                 <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg">
-                  <span className="text-gray-700 font-medium">
-                    Sentiment vs. expression alignment
-                  </span>
+                  <div className="flex items-center space-x-3">
+                    <Eye className="w-5 h-5 text-purple-600" />
+                    <span className="text-gray-700 font-medium">
+                      Sentiment vs. Expression Alignment
+                    </span>
+                  </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-green-500 rounded-full" />
-                    <span className="text-green-600 font-medium">✓ Consistent</span>
+                    {(() => {
+                      const style = getBreakdownStyle(
+                        analysisData.breakdown.sentiment
+                      );
+                      const Icon = style.icon;
+                      return (
+                        <>
+                          <Icon className={`w-4 h-4 ${style.color}`} />
+                          <span className={`${style.color} font-medium`}>
+                            {analysisData.breakdown.sentiment}%
+                          </span>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg">
-                  <span className="text-gray-700 font-medium">
-                    Response confidence (filler words, tone)
-                  </span>
+                  <div className="flex items-center space-x-3">
+                    <MessageSquare className="w-5 h-5 text-green-600" />
+                    <span className="text-gray-700 font-medium">
+                      Response Confidence (filler words, tone)
+                    </span>
+                  </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-yellow-500 rounded-full" />
-                    <span className="text-yellow-600 font-medium">⚠️ Moderate</span>
+                    {(() => {
+                      const style = getBreakdownStyle(
+                        analysisData.breakdown.coherence
+                      );
+                      const Icon = style.icon;
+                      return (
+                        <>
+                          <Icon className={`w-4 h-4 ${style.color}`} />
+                          <span className={`${style.color} font-medium`}>
+                            {analysisData.breakdown.coherence}%
+                          </span>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg">
-                  <span className="text-gray-700 font-medium">Facial micro-expressions</span>
+                  <div className="flex items-center space-x-3">
+                    <Brain className="w-5 h-5 text-blue-600" />
+                    <span className="text-gray-700 font-medium">
+                      Facial Micro-expressions
+                    </span>
+                  </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-green-500 rounded-full" />
-                    <span className="text-green-600 font-medium">✓ Natural</span>
+                    {(() => {
+                      const style = getBreakdownStyle(
+                        analysisData.breakdown.microExpressions
+                      );
+                      const Icon = style.icon;
+                      return (
+                        <>
+                          <Icon className={`w-4 h-4 ${style.color}`} />
+                          <span className={`${style.color} font-medium`}>
+                            {analysisData.breakdown.microExpressions}%
+                          </span>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg">
-                  <span className="text-gray-700 font-medium">Speech pattern analysis</span>
+                  <div className="flex items-center space-x-3">
+                    <TrendingUp className="w-5 h-5 text-orange-600" />
+                    <span className="text-gray-700 font-medium">
+                      Speech Pattern Analysis
+                    </span>
+                  </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-green-500 rounded-full" />
-                    <span className="text-green-600 font-medium">✓ Authentic</span>
+                    {(() => {
+                      const style = getBreakdownStyle(
+                        analysisData.breakdown.confidence
+                      );
+                      const Icon = style.icon;
+                      return (
+                        <>
+                          <Icon className={`w-4 h-4 ${style.color}`} />
+                          <span className={`${style.color} font-medium`}>
+                            {analysisData.breakdown.confidence}%
+                          </span>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
+
+              {/* Analysis Insights */}
+              <div className="mt-6 p-4 bg-gray-100 rounded-lg">
+                <h4 className="text-gray-800 font-semibold mb-3">
+                  Analysis Insights:
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                  <div>
+                    <span className="font-medium">Overall Score:</span>{" "}
+                    {trustScore}%
+                  </div>
+                  <div>
+                    <span className="font-medium">Speech Analysis:</span>{" "}
+                    {analysisData.speech}%
+                  </div>
+                  <div>
+                    <span className="font-medium">Facial Analysis:</span>{" "}
+                    {analysisData.facial}%
+                  </div>
+                  <div>
+                    <span className="font-medium">Micro-expressions:</span>{" "}
+                    {analysisData.breakdown.microExpressions}%
                   </div>
                 </div>
               </div>
@@ -278,7 +452,10 @@ const ResultsScreen = ({ onReset }: ResultsScreenProps) => {
           </motion.div>
 
           {/* Actions */}
-          <motion.div variants={itemVariants} className="grid md:grid-cols-2 gap-4">
+          <motion.div
+            variants={itemVariants}
+            className="grid md:grid-cols-2 gap-4"
+          >
             <Card className="backdrop-blur-sm p-6 text-center" style={boxStyle}>
               <h4 className="text-black text-lg font-semibold mb-4">
                 {isAuthentic ? "Congratulations!" : "Try Again"}

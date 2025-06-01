@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import MovingGradientBackground from "./MovingGradientBackground";
 import { useCamera } from "@/contexts/CameraContext";
+import { useAnalysis } from "@/contexts/AnalysisContext";
 import AudioVisualizer from "./AudioVisualizer";
+import AnalysisOverlay from "./AnalysisOverlay";
+import { AuthenticityScore } from "@/services/AnalysisService";
 
 interface InterviewScreenProps {
-  onComplete: () => void;
+  onComplete: (score: AuthenticityScore) => void;
   onReset: () => void;
 }
 
@@ -21,6 +24,10 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
   const [isRecording, setIsRecording] = useState(false);
   const [countdown, setCountdown] = useState(5);
   const [phase, setPhase] = useState<"countdown" | "recording">("countdown");
+  const [showAnalysisOverlay, setShowAnalysisOverlay] = useState(false);
+
+  // Analysis interval ref
+  const analysisIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Camera hook from context
   const {
@@ -33,6 +40,22 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
     stopCamera,
   } = useCamera();
 
+  // Analysis hook from context
+  const {
+    isInitialized: analysisInitialized,
+    isAnalyzing,
+    currentFacialAnalysis,
+    speechRecognition,
+    finalScore,
+    startAnalysis,
+    stopAnalysis,
+    analyzeFace,
+    generateScore,
+    resetAnalysis,
+    resetForNewQuestion,
+    error: analysisError,
+  } = useAnalysis();
+
   // Ensure camera is running when component mounts
   useEffect(() => {
     console.log(
@@ -42,11 +65,6 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
       cameraError
     );
 
-    // Always try to start camera when interview screen loads
-    // This handles cases where:
-    // 1. Camera was stopped in start screen
-    // 2. Camera failed to start initially
-    // 3. Camera permissions were lost
     const initializeCamera = async () => {
       if (!isStreaming && !cameraError) {
         console.log("🎥 Starting camera for interview...");
@@ -60,7 +78,7 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
     };
 
     initializeCamera();
-  }, [startCamera]); // Include startCamera in deps to ensure we have the latest version
+  }, [startCamera]);
 
   // Effect to ensure video element is connected to stream in interview
   useEffect(() => {
@@ -68,7 +86,6 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
       console.log("🎥 [InterviewScreen] Connecting video element to stream");
       videoRef.current.srcObject = stream;
 
-      // Ensure video plays
       videoRef.current.play().catch((error) => {
         console.warn("🎥 [InterviewScreen] Video autoplay failed:", error);
       });
@@ -83,10 +100,39 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
       return () => clearTimeout(timer);
     } else if (phase === "countdown" && countdown === 0) {
+      console.log("🧠 Countdown finished, transitioning to recording...");
       setPhase("recording");
       setIsRecording(true);
     }
   }, [countdown, phase]);
+
+  // Separate effect to start analysis when recording begins
+  useEffect(() => {
+    if (phase === "recording" && isRecording && !isAnalyzing) {
+      console.log("🧠 Recording state confirmed, starting analysis...");
+      console.log("🧠 Current states:", {
+        phase,
+        isRecording,
+        isAnalyzing,
+        analysisInitialized,
+      });
+
+      // Longer delay to ensure all states are properly set
+      setTimeout(() => {
+        console.log("🧠 Delayed analysis start - checking states again:", {
+          phase,
+          isRecording,
+          isAnalyzing,
+          analysisInitialized,
+        });
+        if (phase === "recording" && isRecording) {
+          startAnalysisSession();
+        } else {
+          console.log("🧠 States changed during delay, not starting analysis");
+        }
+      }, 500); // Increased delay
+    }
+  }, [phase, isRecording, isAnalyzing]);
 
   useEffect(() => {
     // Recording phase timer
@@ -94,34 +140,120 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
       return () => clearTimeout(timer);
     } else if (phase === "recording" && timeLeft === 0) {
+      console.log("🕐 Time's up, moving to next question");
       handleNext();
     }
   }, [timeLeft, phase, isRecording]);
 
-  // Cleanup camera when component unmounts or interview completes
+  // Start analysis session
+  const startAnalysisSession = async () => {
+    console.log("🧠 Starting analysis session...");
+    console.log(
+      "🧠 Video element ready:",
+      !!videoRef.current,
+      videoRef.current?.readyState
+    );
+    console.log("🧠 Recording state:", isRecording, "Phase:", phase);
+
+    await startAnalysis();
+
+    // Start facial analysis loop with more frequent logging
+    if (videoRef.current) {
+      console.log("🧠 Starting facial analysis interval...");
+      let analysisCount = 0;
+
+      analysisIntervalRef.current = setInterval(async () => {
+        analysisCount++;
+        console.log(
+          `🧠 🔄 Facial analysis attempt #${analysisCount} - Recording: ${isRecording}, Phase: ${phase}`
+        );
+
+        if (videoRef.current && isRecording) {
+          // Check video state
+          if (videoRef.current.readyState < 2) {
+            console.log(
+              "🧠 ⚠️ Video not ready, state:",
+              videoRef.current.readyState
+            );
+            return;
+          }
+
+          console.log("🧠 ✅ Conditions met, calling analyzeFace...");
+          await analyzeFace(videoRef.current);
+        } else {
+          console.log(
+            "🧠 ⚠️ Skipping analysis - video:",
+            !!videoRef.current,
+            "recording:",
+            isRecording,
+            "phase:",
+            phase
+          );
+        }
+      }, 1000); // Reduced from 200ms to 1000ms for better performance
+
+      console.log("🧠 ✅ Facial analysis interval started");
+    } else {
+      console.log("🧠 ❌ No video element available for analysis");
+    }
+  };
+
+  // Stop analysis session
+  const stopAnalysisSession = () => {
+    console.log("🧠 Stopping analysis session...");
+    stopAnalysis();
+
+    if (analysisIntervalRef.current) {
+      clearInterval(analysisIntervalRef.current);
+      analysisIntervalRef.current = null;
+      console.log("🧠 ✅ Facial analysis interval cleared");
+    }
+  };
+
+  // Cleanup camera and analysis when component unmounts or interview completes
   useEffect(() => {
     return () => {
       stopCamera();
+      stopAnalysisSession();
     };
   }, [stopCamera]);
 
   const handleNext = () => {
     console.log("Moving to next question or completing interview");
+    console.log("🧠 📊 Current analysis data before moving:", {
+      currentQuestion: currentQuestion + 1,
+      facialAnalysisAvailable: !!currentFacialAnalysis,
+      speechRecognitionActive: !!speechRecognition,
+      analysisServiceReady: analysisInitialized,
+    });
+
+    // Stop current analysis
+    stopAnalysisSession();
 
     if (currentQuestion < questions.length - 1) {
+      console.log("🧠 Moving to next question, resetting analysis data...");
+      resetForNewQuestion(); // Clear data for new question
+
       setCurrentQuestion(currentQuestion + 1);
       setTimeLeft(60);
       setCountdown(5);
       setPhase("countdown");
       setIsRecording(false);
     } else {
+      // Generate final score and complete interview
+      console.log("🧠 Generating final authenticity score...");
+      const score = generateScore(questions[currentQuestion]);
+      console.log("🧠 📊 Generated score:", score);
+
       stopCamera();
-      onComplete();
+      onComplete(score);
     }
   };
 
   const handleReset = () => {
     stopCamera();
+    stopAnalysisSession();
+    resetAnalysis();
     onReset();
   };
 
@@ -139,25 +271,39 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
           <div className="w-6"></div> {/* Empty space for balance */}
         </div>
 
+        {/* Analysis Error Display */}
+        {analysisError && (
+          <Card className="border-red-700/50 backdrop-blur-sm p-4 mb-4 bg-red-900/20">
+            <div className="text-red-400 text-sm">
+              ⚠️ Analysis Error: {analysisError}
+            </div>
+            <div className="text-gray-400 text-xs mt-1">
+              Interview will continue with reduced analysis capabilities.
+            </div>
+          </Card>
+        )}
+
         {/* Question Card */}
-        <Card className="border-blue-700/50 backdrop-blur-sm p-8 mb-6 overflow-hidden relative" 
-              style={{ backgroundColor: 'rgba(10, 10, 40, 0.8)' }}>
+        <Card
+          className="border-blue-700/50 backdrop-blur-sm p-8 mb-6 overflow-hidden relative"
+          style={{ backgroundColor: "rgba(10, 10, 40, 0.8)" }}
+        >
           {/* Gradient accent - matching MovingGradientBackground gradients */}
           <div className="absolute inset-0 overflow-hidden">
-            <div 
-              className="absolute top-[30%] right-[60%] w-[50vh] h-[50vh] rounded-full filter blur-[80px] mix-blend-screen animate-pulse-slow" 
-              style={{ backgroundColor: 'rgba(0, 11, 226, 0.35)' }} 
+            <div
+              className="absolute top-[30%] right-[60%] w-[50vh] h-[50vh] rounded-full filter blur-[80px] mix-blend-screen animate-pulse-slow"
+              style={{ backgroundColor: "rgba(0, 11, 226, 0.35)" }}
             />
-            <div 
-              className="absolute bottom-[20%] left-[40%] w-[30vh] h-[30vh] rounded-full filter blur-[60px] mix-blend-screen animate-float" 
-              style={{ backgroundColor: 'rgba(67, 167, 255, 0.3)' }} 
+            <div
+              className="absolute bottom-[20%] left-[40%] w-[30vh] h-[30vh] rounded-full filter blur-[60px] mix-blend-screen animate-float"
+              style={{ backgroundColor: "rgba(67, 167, 255, 0.3)" }}
             />
-            <div 
-              className="absolute top-[10%] left-[60%] w-[25vh] h-[25vh] rounded-full filter blur-[50px] mix-blend-screen animate-pulse-slow animation-delay-2000" 
-              style={{ backgroundColor: 'rgba(176, 169, 255, 0.25)' }} 
+            <div
+              className="absolute top-[10%] left-[60%] w-[25vh] h-[25vh] rounded-full filter blur-[50px] mix-blend-screen animate-pulse-slow animation-delay-2000"
+              style={{ backgroundColor: "rgba(176, 169, 255, 0.25)" }}
             />
           </div>
-          
+
           <div className="flex flex-col md:flex-row items-start md:items-center relative z-10">
             <div className="bg-blue-800/50 text-blue-100 text-xs font-medium px-3 py-1.5 rounded-full mb-4 md:mb-0 md:mr-6 border border-blue-700/50 backdrop-blur-sm shadow-inner">
               Question {currentQuestion + 1} of {questions.length}
@@ -230,6 +376,16 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
                     }
                   />
 
+                  {/* Analysis Overlay */}
+                  {showAnalysisOverlay && (
+                    <AnalysisOverlay
+                      facialAnalysis={currentFacialAnalysis}
+                      speechRecognition={speechRecognition}
+                      isAnalyzing={isAnalyzing && isRecording}
+                      showDetailed={true}
+                    />
+                  )}
+
                   {/* Recording indicators */}
                   {isRecording && (
                     <>
@@ -247,9 +403,23 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
                               isActive={isRecording}
                             />
                           </div>
-                          <p className="text-white text-xs text-center font-medium">
-                            Recording in progress...
-                          </p>
+                          <div className="flex justify-between items-center">
+                            <p className="text-white text-xs font-medium">
+                              Recording in progress...
+                            </p>
+                            <div className="flex items-center space-x-2">
+                              {analysisInitialized && (
+                                <span className="text-green-400 text-xs">
+                                  🧠 AI Analysis
+                                </span>
+                              )}
+                              {speechRecognition && (
+                                <span className="text-blue-400 text-xs">
+                                  🎤 Speech
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </>
@@ -259,7 +429,9 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
                   {!isRecording && (
                     <div className="absolute bottom-4 right-4">
                       <div className="bg-green-600/80 text-white px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
-                        Camera Active
+                        {analysisInitialized
+                          ? "Camera & AI Ready"
+                          : "Camera Active"}
                       </div>
                     </div>
                   )}
@@ -275,11 +447,18 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
               {phase === "countdown" ? (
                 <div className="text-center">
                   <p className="text-gray-400 text-sm mb-2">
-                    Recording starts in:
+                    {countdown === 5
+                      ? "Analysis initializing..."
+                      : "Recording starts in:"}
                   </p>
                   <div className="text-6xl font-bold text-[#AABAE4]">
                     {countdown}
                   </div>
+                  {countdown <= 3 && (
+                    <p className="text-green-400 text-xs mt-2">
+                      ✓ AI analysis loaded
+                    </p>
+                  )}
                 </div>
               ) : (
                 <div className="text-center">
@@ -296,6 +475,62 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
                 </div>
               )}
             </Card>
+
+            {/* Analysis Status */}
+            {isRecording && (
+              <Card className="bg-gray-900/80 border-gray-700 backdrop-blur-sm p-4">
+                <div className="text-center space-y-2">
+                  <p className="text-gray-400 text-sm">AI Analysis Status:</p>
+                  <div className="space-y-1">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-300 text-xs">
+                        Facial Detection:
+                      </span>
+                      <span
+                        className={`text-xs ${
+                          currentFacialAnalysis
+                            ? "text-green-400"
+                            : "text-yellow-400"
+                        }`}
+                      >
+                        {currentFacialAnalysis ? "✓ Active" : "⏳ Initializing"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-300 text-xs">
+                        Speech Analysis:
+                      </span>
+                      <span
+                        className={`text-xs ${
+                          speechRecognition
+                            ? "text-green-400"
+                            : "text-yellow-400"
+                        }`}
+                      >
+                        {speechRecognition ? "✓ Listening" : "⏳ Starting"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Analysis Overlay Toggle */}
+                  <div className="pt-3 border-t border-gray-700">
+                    <Button
+                      onClick={() =>
+                        setShowAnalysisOverlay(!showAnalysisOverlay)
+                      }
+                      variant="outline"
+                      size="sm"
+                      className="w-full bg-gray-800/50 border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700/50 text-xs"
+                    >
+                      {showAnalysisOverlay ? "Hide" : "Show"} Facial Mesh
+                    </Button>
+                    <p className="text-gray-500 text-xs mt-3">
+                      Toggle facial landmark visualization.
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            )}
 
             {/* Controls */}
             {phase === "recording" && (
@@ -323,13 +558,13 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
                 <p className="text-gray-400 text-sm">Status:</p>
                 <p className="text-white font-semibold">
                   {phase === "countdown"
-                    ? "Preparing..."
-                    : "Recording in progress..."}
+                    ? "Preparing AI Analysis..."
+                    : "Recording & Analyzing..."}
                 </p>
               </div>
             </Card>
-            
-            {/* Reset Interview Button - Moved from header to bottom of right panel */}
+
+            {/* Reset Interview Button */}
             <div className="flex justify-end mt-4">
               <Button
                 onClick={handleReset}
