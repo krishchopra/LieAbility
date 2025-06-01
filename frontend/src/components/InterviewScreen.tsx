@@ -35,12 +35,45 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
 
   // Ensure camera is running when component mounts
   useEffect(() => {
-    console.log("🎥 Interview screen mounted, camera streaming:", isStreaming);
-    if (!isStreaming && !cameraError) {
-      console.log("🎥 Starting camera for interview...");
-      startCamera();
+    console.log(
+      "🎥 Interview screen mounted, camera streaming:",
+      isStreaming,
+      "error:",
+      cameraError
+    );
+
+    // Always try to start camera when interview screen loads
+    // This handles cases where:
+    // 1. Camera was stopped in start screen
+    // 2. Camera failed to start initially
+    // 3. Camera permissions were lost
+    const initializeCamera = async () => {
+      if (!isStreaming && !cameraError) {
+        console.log("🎥 Starting camera for interview...");
+        await startCamera();
+      } else if (cameraError) {
+        console.log("🎥 Camera has error, attempting restart...");
+        await startCamera();
+      } else {
+        console.log("🎥 Camera already streaming, no action needed");
+      }
+    };
+
+    initializeCamera();
+  }, [startCamera]); // Include startCamera in deps to ensure we have the latest version
+
+  // Effect to ensure video element is connected to stream in interview
+  useEffect(() => {
+    if (isStreaming && stream && videoRef.current) {
+      console.log("🎥 [InterviewScreen] Connecting video element to stream");
+      videoRef.current.srcObject = stream;
+
+      // Ensure video plays
+      videoRef.current.play().catch((error) => {
+        console.warn("🎥 [InterviewScreen] Video autoplay failed:", error);
+      });
     }
-  }, []);
+  }, [isStreaming, stream]);
 
   useEffect(() => {
     console.log("Interview started, question:", currentQuestion + 1);
@@ -222,7 +255,7 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
                             />
                           </div>
                           <p className="text-white text-xs text-center font-medium">
-                            Recording in progress
+                            Recording in progress...
                           </p>
                         </div>
                       </div>
@@ -281,11 +314,11 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
                     disabled={timeLeft > 50} // Minimum 10 seconds
                   >
                     {timeLeft > 50
-                      ? `Wait ${-(50 - timeLeft + 1)}s`
+                      ? `Wait ${timeLeft - 50}s`
                       : "Next Question →"}
                   </Button>
                   <p className="text-gray-400 text-xs text-center">
-                    You can proceed after 10 seconds minimum
+                    You can proceed after 10 seconds minimum.
                   </p>
                 </div>
               </Card>
@@ -298,7 +331,7 @@ const InterviewScreen = ({ onComplete, onReset }: InterviewScreenProps) => {
                 <p className="text-white font-semibold">
                   {phase === "countdown"
                     ? "Preparing..."
-                    : "Recording in progress"}
+                    : "Recording in progress..."}
                 </p>
               </div>
             </Card>

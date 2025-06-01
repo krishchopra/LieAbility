@@ -1,73 +1,163 @@
-# Welcome to your Lovable project
+# LieAbility - Authenticity Assessment with NFT Certification
 
-## Project info
+LieAbility is a cutting-edge application that analyzes user responses for authenticity and awards blockchain-verified NFT certificates to users who demonstrate high trust scores.
 
-**URL**: https://lovable.dev/projects/e8b18033-d95e-4b40-b2d6-1c069897c089
+## Features
 
-## How can I edit this code?
+- **AI-Powered Assessment**: Evaluates sentiment, confidence, facial expressions, and speech patterns
+- **Blockchain Verification**: Issues NFT certificates on Hedera testnet for qualifying users (≥75% trust score)
+- **Secure Backend**: Server-side assessment verification and eligibility granting
+- **MetaMask Integration**: Connect your wallet to mint and manage NFT certificates
+- **BlockScout Integration**: View and interact with smart contracts on the explorer
 
-There are several ways of editing your application.
+## Architecture
 
-**Use Lovable**
+- **Frontend**: React + TypeScript + Vite with MetaMask wallet integration
+- **Backend**: Express.js API for secure assessment verification
+- **Blockchain**: Hedera testnet with ERC-721 NFT smart contract
+- **Explorer**: BlockScout for contract verification and interaction
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e8b18033-d95e-4b40-b2d6-1c069897c089) and start prompting.
+## Project Structure
 
-Changes made via Lovable will be committed automatically to this repo.
+```
+LieAbility/
+├── frontend/                     # React + Vite frontend application
+│   ├── src/                      # Source code
+│   │   ├── components/           # React components
+│   │   ├── hooks/                # Custom React hooks
+│   │   └── utils/                # Utility functions
+│   ├── public/                   # Static assets
+│   ├── package.json              # Frontend dependencies
+│   ├── vite.config.ts            # Vite configuration
+│   ├── tailwind.config.ts        # Tailwind CSS configuration
+│   └── env.example               # Frontend environment variables
+├── backend/                      # Express.js backend server
+│   ├── server.js                 # Main server application
+│   ├── package.json              # Backend dependencies
+│   └── env.example               # Backend environment variables
+├── contracts/                    # Smart contracts
+├── scripts/                      # Deployment scripts
+└── docs/                         # Documentation files
+```
 
-**Use your preferred IDE**
+## Quick Setup
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Prerequisites
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Node.js & npm installed
+- Two terminal windows/tabs
 
-Follow these steps:
+### Setup & Run
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# Clone repository
 git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
 cd <YOUR_PROJECT_NAME>
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+**Terminal 1 - Backend:**
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```sh
+cd backend
+npm install
+cp env.example .env
+# Edit .env with your Hedera credentials
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+**Terminal 2 - Frontend:**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```sh
+cd frontend
+npm install
+cp env.example .env
+# Edit .env with your configuration
+npm run dev
+```
 
-**Use GitHub Codespaces**
+That's it! Both services will run independently.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Environment Configuration
 
-## What technologies are used for this project?
+**Frontend (.env in `/frontend` directory):**
 
-This project is built with:
+```env
+VITE_BACKEND_URL=http://localhost:3001
+VITE_CONTRACT_ADDRESS=0.0.your_contract_id
+VITE_BLOCKSCOUT_URL=https://hashscan.io/testnet
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+**Backend (.env in `/backend` directory):**
 
-## How can I deploy this project?
+```env
+HEDERA_ACCOUNT_ID=0.0.your_account_id
+HEDERA_PRIVATE_KEY=your_hedera_private_key
+HEDERA_NETWORK=testnet
+CONTRACT_ID=0.0.your_contract_id
+ASSESSMENT_PRIVATE_KEY=your_assessment_signing_private_key
+PORT=3001
+FRONTEND_URL=http://localhost:5173
+```
 
-Simply open [Lovable](https://lovable.dev/projects/e8b18033-d95e-4b40-b2d6-1c069897c089) and click on Share -> Publish.
+## How It Works
 
-## Can I connect a custom domain to my Lovable project?
+1. **Take Assessment**: Users complete an authenticity assessment
+2. **Connect Wallet**: Connect MetaMask to interact with the blockchain
+3. **Submit Assessment**: Backend verifies the assessment and grants eligibility
+4. **Mint NFT**: Eligible users can mint their authenticity certificate NFT
+5. **Verify on Blockchain**: View and verify certificates on BlockScout explorer
 
-Yes, you can!
+## Development Commands
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+```bash
+# Frontend (from frontend/ directory)
+npm run dev        # Start development server (http://localhost:5173)
+npm run build      # Build for production
+npm run preview    # Preview production build
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+# Backend (from backend/ directory)
+npm run dev        # Start with nodemon (http://localhost:3001)
+npm start          # Production start
+```
+
+## Smart Contract Deployment
+
+See `HEDERA_SETUP.md` and `README_NFT_IMPLEMENTATION.md` for detailed deployment instructions.
+
+## Backend API Endpoints
+
+- `GET /health` - Health check
+- `POST /api/submit-assessment` - Submit assessment for verification
+- `GET /api/eligibility/:address` - Check eligibility status
+
+## Security
+
+- Private keys are securely stored on the backend
+- Assessment verification uses cryptographic signatures
+- No sensitive data exposed in frontend environment variables
+- Contract interactions are validated server-side
+
+## Technologies Used
+
+- **Frontend**: Vite, TypeScript, React, shadcn-ui, Tailwind CSS
+- **Backend**: Express.js, CORS, dotenv
+- **Blockchain**: Hedera SDK, ethers.js, ERC-721
+- **Development**: Nodemon, MetaMask integration
+
+## Development vs Production
+
+This setup is designed for localhost development and testnet deployment. For production:
+
+- Use environment-specific configuration
+- Implement proper authentication and rate limiting
+- Add comprehensive input validation and sanitization
+- Use secure key management solutions
+- Implement proper error handling and logging
+
+## Support
+
+For deployment instructions and advanced configuration, see:
+
+- `HEDERA_SETUP.md` - Hedera network and wallet setup
+- `README_NFT_IMPLEMENTATION.md` - Smart contract implementation details
+- `backend-requirements.md` - Backend architecture and requirements
