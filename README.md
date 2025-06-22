@@ -1,6 +1,6 @@
 # LieAbility - Authenticity Assessment with ZK-Verified NFT Certification
 
-LieAbility is a cutting-edge application that analyzes user responses for authenticity and awards blockchain-verified NFT certificates to users who demonstrate high trust scores. Now enhanced with **VLayer Web Proofs** for cryptographic score verification.
+LieAbility is a cutting-edge application that analyzes user responses for authenticity and awards blockchain-verified NFT certificates to users who demonstrate high trust scores, enhanced with **VLayer Web Proofs** for cryptographic score verification.
 
 ## VLayer Web Proofs Integration
 
