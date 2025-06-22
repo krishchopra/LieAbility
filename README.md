@@ -196,8 +196,6 @@ npm run vlayer:deploy # Deploy VLayer contracts
 5. **Verify On-Chain**: Submit proof to blockchain for permanent verification
 6. **Mint Certificate**: Use verified assessment to mint NFT
 
-For detailed VLayer integration information, see [VLAYER_INTEGRATION.md](./docs/VLAYER_INTEGRATION.md).
-
 ---
 
 **Ready to prove your authenticity with cryptographic certainty?** 🚀
