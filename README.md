@@ -15,7 +15,7 @@ LieAbility is a cutting-edge application that analyzes user responses for authen
 ## Features
 
 - **AI-Powered Assessment**: Evaluates sentiment, confidence, facial expressions, and speech patterns
-- **🆕 VLayer Web Proofs**: Cryptographic verification of assessment authenticity using zkTLS
+- **VLayer Web Proofs**: Cryptographic verification of assessment authenticity using zkTLS
 - **Blockchain Verification**: Issues NFT certificates on Hedera testnet for qualifying users (≥75% trust score)
 - **Zero-Knowledge Privacy**: Prove score authenticity without revealing sensitive biometric data
 - **Secure Backend**: Server-side assessment verification and eligibility granting
@@ -126,10 +126,10 @@ FRONTEND_URL=http://localhost:5173
 
 1. **Take Assessment**: Users complete an authenticity assessment
 2. **AI Analysis**: Advanced AI analyzes facial expressions, speech patterns, and behavior
-3. **🆕 Generate ZK Proof**: Create cryptographic proof of score authenticity using VLayer
+3. **Generate ZK Proof**: Create cryptographic proof of score authenticity using VLayer
 4. **Connect Wallet**: Connect MetaMask to interact with the blockchain
 5. **Submit Assessment**: Backend verifies the assessment and grants eligibility
-6. **🆕 Verify Proof**: Submit VLayer proof to blockchain for tamper-proof verification
+6. **Verify Proof**: Submit VLayer proof to blockchain for tamper-proof verification
 7. **Mint NFT**: Eligible users can mint their authenticity certificate NFT
 8. **Verify on Blockchain**: View and verify certificates on BlockScout explorer
 
@@ -163,7 +163,7 @@ npm run vlayer:deploy # Deploy VLayer contracts
 - `GET /health` - Health check
 - `POST /api/submit-assessment` - Submit assessment for verification
 - `GET /api/eligibility/:address` - Check eligibility status
-- `🆕 GET /api/assessment` - VLayer-compatible assessment endpoint for proof generation
+- `GET /api/assessment` - VLayer-compatible assessment endpoint for proof generation
 
 ## Security Features
 
@@ -174,7 +174,7 @@ npm run vlayer:deploy # Deploy VLayer contracts
 - No sensitive data exposed in frontend environment variables
 - Contract interactions are validated server-side
 
-### 🆕 VLayer Web Proof Security
+### VLayer Web Proof Security
 
 - **zkTLS Technology**: Cryptographic proof of API response authenticity
 - **Privacy-Preserving**: Proves score validity without revealing biometric data
@@ -185,7 +185,7 @@ npm run vlayer:deploy # Deploy VLayer contracts
 
 - **Frontend**: Vite, TypeScript, React, shadcn-ui, Tailwind CSS
 - **Backend**: Express.js, CORS, dotenv, mediapipe, tensorflow
-- **🆕 VLayer**: Web Proofs SDK, zkTLS, Zero-Knowledge proofs
+- **VLayer**: Web Proofs SDK, zkTLS, Zero-Knowledge proofs
 - **Blockchain**: Hedera SDK, ethers.js, ERC-721
 - **Development**: Nodemon, MetaMask integration
 
