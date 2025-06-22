@@ -10,6 +10,8 @@ LieAbility is a cutting-edge application that analyzes user responses for authen
 
 ⚡ **Trustless Verification**: No need to trust centralized authorities - verify directly on the blockchain.
 
+[📖 Read the VLayer Integration Guide](./docs/vlayer_integration.md)
+
 ## Features
 
 - **AI-Powered Assessment**: Evaluates sentiment, confidence, facial expressions, and speech patterns
